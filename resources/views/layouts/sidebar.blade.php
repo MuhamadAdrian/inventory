@@ -23,7 +23,13 @@
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-lock-locked') }}"></use>
             </svg> Role & Permission</a></li>
         @endcan
-        <li class="nav-title">Components</li>
+        <li class="nav-title">Product Management</li>
+        @can('view product')
+        <li class="nav-item"><a class="nav-link" href="{{ route('products.index') }}">
+            <svg class="nav-icon">
+              <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
+            </svg>Manage Product</a></li>
+        @endcan
         <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-puzzle') }}"></use>

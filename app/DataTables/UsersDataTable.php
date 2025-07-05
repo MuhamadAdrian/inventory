@@ -12,6 +12,14 @@ use Yajra\DataTables\Services\DataTable;
 
 class UsersDataTable extends DataTable
 {
+    protected array $currentRoles = [];
+
+    public function setCurrentRoles(array $roles): static
+    {
+        $this->currentRoles = $roles;
+        return $this;
+    }
+
     /**
      * Build the DataTable class.
      *
@@ -39,7 +47,28 @@ class UsersDataTable extends DataTable
      */
     public function query(User $model): QueryBuilder
     {
-        return $model->newQuery()->with('roles');
+        $exclusions = [
+            'owner'  => [],
+            'admin'  => ['owner'],
+            'gudang' => ['owner', 'admin'],
+            'kasir'  => ['owner', 'admin', 'gudang'],
+        ];
+
+        // Combine exclusion rules from current roles
+        $exclude = [];
+
+        foreach ($this->currentRoles as $role) {
+            $exclude = array_merge($exclude, $exclusions[$role] ?? []);
+        }
+
+        $exclude = array_unique($exclude);
+
+        // Return users who DO NOT have roles in the exclusion list
+        return $model->newQuery()
+            ->with('roles')
+            ->whereDoesntHave('roles', function ($query) use ($exclude) {
+                $query->whereIn('name', $exclude);
+            });
     }
 
     /**

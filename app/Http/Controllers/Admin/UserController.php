@@ -39,7 +39,11 @@ class UserController extends AppController
      */
     public function index(UsersDataTable $dataTable)
     {
-        return $dataTable->render('users.index');
+        $currentRoles = auth()->user()->roles->pluck('name')->toArray();
+        return $dataTable
+            ->setCurrentRoles($currentRoles)
+            ->render('users.index');
+
     }
 
     /**
@@ -54,8 +58,10 @@ class UserController extends AppController
                 ['name' => 'Create', 'url' => route('users.create')],
             ]
         ]);
+
+        $currentRole = auth()->user()->roles->pluck('name')->toArray();
         // Get all roles to allow assignment
-        $roles = $this->roleService->getAll();
+        $roles = $this->roleService->getAll($currentRole);
         return view('users.create', compact('roles'));
     }
 

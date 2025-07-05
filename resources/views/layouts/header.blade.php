@@ -58,7 +58,7 @@
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link py-0 pe-0" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-          <p class="d-inline me-2">{{ Auth::user()->name }}</p>
+          <p class="d-inline">{{ Auth::user()->name }}</p>
           <div class="avatar avatar-md">
             <img class="avatar-img" src="assets/img/avatars/8.jpg" alt="user@email.com">
           </div>
