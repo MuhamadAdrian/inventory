@@ -98,6 +98,8 @@ class UsersDataTable extends DataTable
      */
     public function getColumns(): array
     {
+        $user = auth()->user();
+
         return [
             Column::make('DT_RowIndex')
                 ->title('No')
@@ -116,6 +118,10 @@ class UsersDataTable extends DataTable
                 ->printable(false)
                 ->width(60)
                 ->addClass('text-center')
+                ->attributes([
+                    'style' => $user->can(['edit user']) || $user->can(['delete user'])  ? 'display: block;' : 'display: none;'
+                ])
+
         ];
     }
 

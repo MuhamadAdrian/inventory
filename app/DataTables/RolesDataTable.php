@@ -71,6 +71,8 @@ class RolesDataTable extends DataTable
      */
     public function getColumns(): array
     {
+        $user = auth()->user();
+        
         return [
             Column::make('DT_RowIndex')
                 ->title('No')
@@ -89,6 +91,9 @@ class RolesDataTable extends DataTable
                 ->printable(false)
                 ->width(60)
                 ->addClass('text-center')
+                ->attributes([
+                    'style' => $user->can(['edit role']) || $user->can(['delete role'])  ? 'display: block;' : 'display: none;'
+                ])
 
         ];
     }

@@ -86,6 +86,8 @@ class ProductsDataTable extends DataTable
      */
     public function getColumns(): array
     {
+        $user = auth()->user();
+        
         return [
             Column::make('DT_RowIndex')
                 ->title('No')
@@ -100,7 +102,8 @@ class ProductsDataTable extends DataTable
             Column::make('name'),
             Column::make('description'),
             Column::make('price'),
-            Column::make('stock'),
+            Column::make('stock')
+                ->title('Main Stock'),
             Column::make('item_code'),
             Column::make('color'),
             Column::make('series'),
@@ -111,6 +114,10 @@ class ProductsDataTable extends DataTable
                 ->printable(false)
                 ->width(60)
                 ->addClass('text-center')
+                ->attributes([
+                    'style' => $user->can(['edit product']) || $user->can(['delete product'])  ? 'display: block;' : 'display: none;'
+                ])
+
         ];
     }
 
