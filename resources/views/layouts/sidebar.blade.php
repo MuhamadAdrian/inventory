@@ -30,6 +30,12 @@
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
             </svg>Manage Product</a></li>
         @endcan
+        @can('scan barcode')
+        <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('products.scan_barcode') }}">
+            <svg class="nav-icon">
+              <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
+            </svg>Manage Scaned Product</a></li>
+        @endcan
         <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-puzzle') }}"></use>

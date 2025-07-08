@@ -23,6 +23,7 @@ class ProductController extends AppController
         $this->middleware('can:edit product')->only(['edit', 'update']);
         $this->middleware('can:delete product')->only(['destroy']);
         $this->middleware('can:print barcode')->only(['printBarcode']);
+        $this->middleware('can:scan barcode')->only(['processScanStock', 'showScanStockForm']);
 
         $this->productService = $productService;
 
@@ -65,14 +66,6 @@ class ProductController extends AppController
         $this->productService->createProduct($request->except('images'), $images);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -128,5 +121,52 @@ class ProductController extends AppController
         $barcodeBase64 = 'data:image/png;base64,' . $dns1d->getBarcodePNG($product->item_code, 'UPCA', 4, 100); // Larger barcode for print
 
         return view('products.template.print_barcode', compact('product', 'barcodeBase64'));
+    }
+
+    /**
+     * Show the form for scanning barcode and adjusting stock.
+     */
+    public function showScanStockForm()
+    {
+        return view('products.scan_stock');
+    }
+
+    /**
+     * Process barcode scan and adjust product stock.
+     */
+    public function processScanStock(Request $request)
+    {
+        $request->validate([
+            'item_code_or_barcode' => ['required', 'string', 'max:255'],
+            'quantity_change' => ['required', 'integer', 'min:-999999999', 'max:999999999'], // Allow large changes
+        ]);
+
+        $identifier = $request->input('item_code_or_barcode');
+        $quantityChange = $request->input('quantity_change');
+
+        try {
+            $product = $this->productService->adjustProductStock($identifier, $quantityChange);
+
+            if (!$product) {
+                return response()->json(['success' => false, 'message' => 'Product not found with the provided identifier.'], 404);
+            }
+
+            // Generate barcode for the response
+            $barcodeBase64 = $product->item_code ? $this->productService->generateBarcode($product->item_code) : null;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Stock updated successfully!',
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'item_code' => $product->item_code,
+                    'current_stock' => $product->stock,
+                    'barcode_image' => $barcodeBase64,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 }

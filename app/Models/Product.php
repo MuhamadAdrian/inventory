@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +19,7 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'stock',
+        'first_stock',
         'item_code', // Kode Barang (Item Code)
         'color',     // Warna (Color)
         'series',    // Seri (Series)

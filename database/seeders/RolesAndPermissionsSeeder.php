@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\Hash;
 
 class RolesAndPermissionsSeeder extends Seeder
@@ -86,14 +87,21 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminUser->assignRole('admin');
 
         // Create a default gudang user
+        $gudangProfile = Warehouse::create([
+            'name' => 'Gudang 1',
+            'location' => 'Bandung'
+        ]);
+
         $gudangUser = User::firstOrCreate(
             ['email' => 'gudang1@example.com'],
             [
                 'name' => 'Gudang User 1',
                 'password' => Hash::make('password'), // Change this in production!
                 'email_verified_at' => now(),
+                'warehouse_id' => $gudangProfile->id
             ]
         );
+
         $gudangUser->assignRole('gudang');
 
         // Create a default kasir user

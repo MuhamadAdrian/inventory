@@ -102,8 +102,8 @@ class ProductsDataTable extends DataTable
             Column::make('name'),
             Column::make('description'),
             Column::make('price'),
-            Column::make('stock')
-                ->title('Main Stock'),
+            Column::make('first_stock')
+                ->title('First Stock'),
             Column::make('item_code'),
             Column::make('color'),
             Column::make('series'),

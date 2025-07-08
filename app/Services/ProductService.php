@@ -8,6 +8,9 @@ use App\Models\ProductColor;
 use App\Models\ProductSize;
 use App\Models\ProductBrand;
 use App\Models\ProductImage;
+use App\Models\ProductStock;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Milon\Barcode\DNS1D; // For 1D barcodes like CODE128
@@ -37,6 +40,18 @@ class ProductService
     }
 
     /**
+     * Find a product by its item code or barcode.
+     *
+     * @param string $identifier
+     * @return \App\Models\Product|null
+     */
+    public function findProductByItemCodeOrBarcode(string $identifier)
+    {
+        return Product::where('item_code', $identifier)
+            ->first();
+    }
+
+    /**
      * Create a new product.
      *
      * @param array $data
@@ -53,6 +68,15 @@ class ProductService
             $this->ensureLookupValueExists(ProductBrand::class, $data['brand'] ?? null);
 
             $product = Product::create($data); // TODO: filter input
+
+            // create stock history
+            ProductStock::create([
+                'product_id' => $product->id,
+                'quantity' => $product->first_stock,
+                'causer_type' => User::class,
+                'causer_id' => Auth::id(),
+                'stock' => $product->first_stock
+            ]);
 
             // Handle image uploads
             $this->uploadAndAssociateImages($product, $images);
@@ -195,7 +219,7 @@ class ProductService
     {
         $barcodeGenerator = new DNS1D();
         $barcodeGenerator->setStorPath(__DIR__.'/cache/');
-        return $barcodeGenerator->getBarcodeSVG($itemCode, 'UPCA', 2, 50, 'black', true, false); // UPC-A for Univervasl Product Code, width 2, height 39
+        return $barcodeGenerator->getBarcodeSVG($itemCode, 'C128', 2, 50, 'black', true, false); // C128 for Univervasl Product Code, width 2, height 39
     }
 
     /**
@@ -243,4 +267,33 @@ class ProductService
         // ProductImage model's booted method handles file deletion
         ProductImage::whereIn('id', $imageIds)->delete();
     }
+
+        /**
+     * Adjusts the stock of a product by its item code.
+     *
+     * @param string $identifier The item code or barcode string.
+     * @param int $quantityChange The amount to change stock by (positive for increase, negative for decrease).
+     * @return \App\Models\Product|null The updated product, or null if not found.
+     * @throws \Exception If stock adjustment results in negative stock.
+     */
+    public function adjustProductStock(string $identifier, int $quantityChange): ?Product
+    {
+        $product = $this->findProductByItemCodeOrBarcode($identifier);
+
+        if (!$product) {
+            return null;
+        }
+
+        $newStock = $product->stock + $quantityChange;
+
+        if ($newStock < 0) {
+            throw new \Exception('Stock cannot be negative. Current stock: ' . $product->stock . ', Attempted change: ' . $quantityChange);
+        }
+
+        $product->stock = $newStock;
+        $product->save();
+
+        return $product;
+    }
+
 }

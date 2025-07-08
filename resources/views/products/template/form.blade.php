@@ -24,7 +24,7 @@
 
     <div class="col-md-6 mb-3">
         <label for="item_code" class="form-label">Item Code</label>
-        <input type="text" class="form-control rounded-md @error('item_code') is-invalid @enderror" id="item_code" name="item_code" value="{{ old('item_code', $isEdit ? $product->item_code : '') }}">
+        <input type="text" @if($isEdit) readonly @endif class="form-control rounded-md @error('item_code') is-invalid @enderror" id="item_code" name="item_code" value="{{ old('item_code', $isEdit ? $product->item_code : '') }}">
         @error('item_code')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
@@ -49,9 +49,9 @@
     </div>
 
     <div class="col-md-4 mb-3">
-        <label for="stock" class="form-label">Stock</label>
-        <input type="number" class="form-control rounded-md @error('stock') is-invalid @enderror" id="stock" name="stock" value="{{ old('stock', $isEdit ? $product->stock : '') }}" required min="0">
-        @error('stock')
+        <label for="first_stock" class="form-label">First Stock</label>
+        <input type="number" class="form-control rounded-md @error('first_stock') is-invalid @enderror" id="first_stock" name="first_stock" value="{{ old('first_stock', $isEdit ? $product->first_stock : '') }}" required min="0">
+        @error('first_stock')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
