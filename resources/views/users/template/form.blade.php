@@ -32,14 +32,31 @@
     <input type="password" class="form-control rounded-md" id="password_confirmation" name="password_confirmation" @if(!$isEdit) required @endif>
 </div>
 
+<div class="mb-3">
+    <label for="warehouse_id" class="form-label">Gudang</label>
+    <select class="form-select rounded-md @error('warehouse_id') is-invalid @enderror" id="warehouse_id" name="warehouse_id">
+        <option value="">-- Pilih Gudang --</option>
+        @foreach ($warehouses as $warehouse)
+            <option value="{{ $warehouse->id }}"
+            {{ old('warehouse_id', $warehouse->id) === auth()->user()->warehouse_id ? 'selected' : '' }}
+            >
+            {{ $warehouse->name }} ({{ $warehouse->location }})
+            </option>
+        @endforeach
+    </select>
+    @error('warehouse_id')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
 <div class="mb-4">
     <label class="form-label">Assign Roles</label>
     <div class="row">
         @foreach ($roles as $role)
         <div class="col-md-4 col-sm-6 mb-2">
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="role_{{ $role->id }}" name="roles[]" value="{{ $role->name }}"
-                    {{ in_array($role->name, old('roles', $userRoles)) ? 'checked' : '' }}>
+                <input class="form-check-input" type="radio" id="role_{{ $role->id }}" name="roles" value="{{ $role->name }}"
+                    {{ in_array($role->name, (array) old('roles', $userRoles)) ? 'checked' : '' }}>
                 <label class="form-check-label" for="role_{{ $role->id }}">{{ $role->name }}</label>
             </div>
         </div>

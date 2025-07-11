@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\User;
 
 use App\DataTables\RolesDataTable;
+use App\Http\Controllers\Admin\AppController;
 use App\Http\Requests\RolePermissionRequest;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;

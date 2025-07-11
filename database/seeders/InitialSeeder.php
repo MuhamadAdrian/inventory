@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Support\Facades\Hash;
 
-class RolesAndPermissionsSeeder extends Seeder
+class InitialSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -28,7 +28,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'stock monitoring',
             'scan barcode', 'print barcode',
             'view stock report', 'print stock report',
-            'nota assignment', 'nota history', 'nota print'
+            'nota assignment', 'nota history', 'nota print',
+            'view warehouse product', 'stock request',
+            'stock request view',
+            'stock input to warehouse',
+            'stock request process',
         ];
 
         foreach ($permissions as $permission) {
@@ -46,16 +50,22 @@ class RolesAndPermissionsSeeder extends Seeder
             'stock monitoring',
             'print barcode',
             'print stock report',
+            'stock request view',
+            'stock input to warehouse',
+            'stock request process',
         ]);
 
         $gudangRole = Role::findOrCreate('gudang');
         $gudangRole->givePermissionTo([
             'view product',
+            'view warehouse product',
             'create user', 'edit user', 'delete user', 'view user',
             'stock monitoring',
+            'stock request',
             'scan barcode',
             'view stock report',
-            'nota assignment', 'nota history', 'nota print'
+            'nota assignment', 'nota history', 'nota print',
+            'stock request view'
         ]);
 
         $kasirRole = Role::findOrCreate('kasir');
@@ -75,22 +85,41 @@ class RolesAndPermissionsSeeder extends Seeder
         );
         $ownerUser->assignRole('owner');
 
+        // Create a center gudang user
+        $gudangProfile = Warehouse::create([
+            'name' => 'Gudang Pusat',
+            'location' => 'Bandung',
+            'code' => 'GP-0001'
+        ]);
+
         // Create a default admin user
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'Admin User',
+                'name' => 'Admin Pusat',
                 'password' => Hash::make('password'), // Change this in production!
                 'email_verified_at' => now(),
+                'warehouse_id' => $gudangProfile->id
             ]
         );
         $adminUser->assignRole('admin');
 
-        // Create a default gudang user
-        $gudangProfile = Warehouse::create([
+        $gudangProfile2 = Warehouse::create([
             'name' => 'Gudang 1',
-            'location' => 'Bandung'
+            'location' => 'Cimahi',
+            'code' => 'G-0001'
         ]);
+
+        $adminUser2 = User::firstOrCreate(
+            ['email' => 'admin1@example.com'],
+            [
+                'name' => 'Admin Gudang 1',
+                'password' => Hash::make('password'), // Change this in production!
+                'email_verified_at' => now(),
+                'warehouse_id' => $gudangProfile2->id
+            ]
+        );
+        $adminUser2->assignRole('admin');
 
         $gudangUser = User::firstOrCreate(
             ['email' => 'gudang1@example.com'],
@@ -98,11 +127,22 @@ class RolesAndPermissionsSeeder extends Seeder
                 'name' => 'Gudang User 1',
                 'password' => Hash::make('password'), // Change this in production!
                 'email_verified_at' => now(),
-                'warehouse_id' => $gudangProfile->id
+                'warehouse_id' => $gudangProfile2->id
+            ]
+        );
+
+        $gudangUser2 = User::firstOrCreate(
+            ['email' => 'gudang2@example.com'],
+            [
+                'name' => 'Gudang User 2',
+                'password' => Hash::make('password'), // Change this in production!
+                'email_verified_at' => now(),
+                'warehouse_id' => $gudangProfile2->id
             ]
         );
 
         $gudangUser->assignRole('gudang');
+        $gudangUser2->assignRole('gudang');
 
         // Create a default kasir user
         $kasirUser = User::firstOrCreate(

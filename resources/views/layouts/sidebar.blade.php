@@ -26,17 +26,30 @@
         <li class="nav-title">Product Management</li>
         @can('view product')
         <li class="nav-item"><a class="nav-link" href="{{ route('products.index') }}">
+          <svg class="nav-icon">
+            <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
+          </svg>Product</a>
+        </li>
+        @endcan
+        @can('view warehouse product')
+        <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('products-warehouse.index') }}">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
-            </svg>Manage Product</a></li>
+            </svg>Stock</a></li>
         @endcan
-        @can('scan barcode')
+        @can('stock request view')
+        <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('stock-transfers.index') }}">
+            <svg class="nav-icon">
+              <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
+            </svg>Stock Request</a></li>
+        @endcan
+        {{-- @can('scan barcode')
         <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('products.scan_barcode') }}">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
-            </svg>Manage Scaned Product</a></li>
-        @endcan
-        <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
+            </svg>Stock Opname</a></li>
+        @endcan --}}
+        {{-- <li class="nav-group"><a class="nav-link nav-group-toggle" href="#">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-puzzle') }}"></use>
             </svg> Base</a>
@@ -64,7 +77,7 @@
         <li class="nav-item"><a class="nav-link text-primary fw-semibold" href="https://coreui.io/product/bootstrap-dashboard-template/" target="_top">
             <svg class="nav-icon text-primary">
               <use xlink:href="assets/coreui/icons/free.svg#cil-layers"></use>
-            </svg> Try CoreUI PRO</a></li>
+            </svg> Try CoreUI PRO</a></li> --}}
       </ul>
       <div class="sidebar-footer border-top d-none d-md-flex">
         <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>

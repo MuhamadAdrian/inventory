@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\User;
 
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -28,6 +28,7 @@ class UserService {
       'name' => $request->name,
       'email' => $request->email,
       'password' => Hash::make($request->password),
+      'warehouse_id' => $request->warehouse_id
     ]);
   }
 

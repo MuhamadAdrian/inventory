@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Product;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -68,15 +68,6 @@ class ProductService
             $this->ensureLookupValueExists(ProductBrand::class, $data['brand'] ?? null);
 
             $product = Product::create($data); // TODO: filter input
-
-            // create stock history
-            ProductStock::create([
-                'product_id' => $product->id,
-                'quantity' => $product->first_stock,
-                'causer_type' => User::class,
-                'causer_id' => Auth::id(),
-                'stock' => $product->first_stock
-            ]);
 
             // Handle image uploads
             $this->uploadAndAssociateImages($product, $images);

@@ -1,15 +1,18 @@
 <?php
 
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\Stock\StockController;
+use App\Http\Controllers\Admin\Product\ProductController;
+use App\Http\Controllers\Admin\User\PermissionController;
+use App\Http\Controllers\Admin\User\RoleController;
+use App\Http\Controllers\Admin\User\UserController;
+use App\Http\Controllers\Admin\Warehouse\WarehouseProductController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
 Route::get('/', function () {
+    // dd(auth()->user()->getAllPermissions()->pluck('name')->toArray());
     return view('index');
 })->name('dashboard')
 ->middleware('auth');
@@ -22,10 +25,29 @@ Route::resources([
 ]);
 
 // Product Management
-Route::post('products/gudang/process-adjust-stock', [ProductController::class, 'processScanStock'])->name('products.adjust_stock');
-Route::get('products/gudang/scan-barcode', [ProductController::class, 'showScanStockForm'])->name('products.scan_barcode'); // Moved this up
+Route::controller(ProductController::class)->prefix('products')->name('products.')->group(function(){
+    Route::post('gudang/process-adjust-stock', 'processScanStock')->name('adjust_stock');
+    Route::get('gudang/scan-barcode', 'showScanStockForm')->name('scan_barcode');
+    Route::post('update-stock', 'updateStock')->name('update_stock');
+    Route::get('{product}/print-barcode', 'printBarcode')->name('print_barcode');
+});
 Route::resource('products', ProductController::class)->except(['show']);
-Route::get('products/{product}/print-barcode', [ProductController::class, 'printBarcode'])->name('products.print_barcode'); // This can stay here or be moved up
+
+// Stock
+Route::controller(StockController::class)->prefix('stock-transfers')->name('stock-transfers.')->group(function() {
+    Route::get('products', 'getProductsForSelectionData')->name('products_for_selection_data');
+});
+
+Route::get('products-warehouse', [WarehouseProductController::class, 'index'])->name('products-warehouse.index');
+
+Route::controller(StockController::class)->prefix('stock-transfers')->name('stock-transfers.')->group(function(){
+    Route::put('process-transfer/{stock_transfer}', 'processTransfer')->name('process_transfer');
+    Route::get('data', 'data')->name('data');
+    Route::put('cancel/{stock_transfer}', 'cancelTransfer')->name('cancel_transfer');
+});
+Route::resource('stock-transfers', StockController::class)->except(['edit', 'update', 'destroy']);
+
+Route::post('', [ProductController::class, 'processScanStock'])->name('products.adjust_stock');
 
 
 

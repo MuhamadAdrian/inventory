@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\User;
 
 use App\DataTables\UsersDataTable;
+use App\Http\Controllers\Admin\AppController;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
-use App\Services\RoleService;
-use App\Services\UserService;
+use App\Models\Warehouse;
+use App\Services\User\RoleService;
+use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -59,10 +61,12 @@ class UserController extends AppController
             ]
         ]);
 
+        $warehouses = Warehouse::all();
+
         $currentRole = auth()->user()->roles->pluck('name')->toArray();
         // Get all roles to allow assignment
         $roles = $this->roleService->getAll($currentRole);
-        return view('users.create', compact('roles'));
+        return view('users.create', compact('roles', 'warehouses'));
     }
 
     /**
@@ -71,7 +75,7 @@ class UserController extends AppController
     public function store(UserRequest $request)
     {
         // Create the new user
-        $user = $this->userService->create($request->validated());
+        $user = $this->userService->create($request);
 
         // Assign roles to the user
         if ($request->has('roles')) {
@@ -86,10 +90,13 @@ class UserController extends AppController
      */
     public function edit(User $user)
     {
+        $warehouses = Warehouse::all();
+
+        $currentRole = auth()->user()->roles->pluck('name')->toArray();
         // Get all roles and the roles currently assigned to the user
-        $roles = $this->roleService->getAll();
+        $roles = $this->roleService->getAll($currentRole);
         $userRoles = $user->roles->pluck('name')->toArray();
-        return view('users.edit', compact('user', 'roles', 'userRoles'));
+        return view('users.edit', compact('user', 'roles', 'userRoles', 'warehouses'));
     }
 
     /**

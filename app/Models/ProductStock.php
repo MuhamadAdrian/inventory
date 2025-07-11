@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductStock extends Model
@@ -32,5 +33,13 @@ class ProductStock extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the causer of the stock movement.
+     */
+    public function causer(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

@@ -64,11 +64,17 @@ class UsersDataTable extends DataTable
         $exclude = array_unique($exclude);
 
         // Return users who DO NOT have roles in the exclusion list
-        return $model->newQuery()
+        $query = $model->newQuery()
             ->with('roles')
             ->whereDoesntHave('roles', function ($query) use ($exclude) {
                 $query->whereIn('name', $exclude);
             });
+        
+        if (auth()->user()->warehouse){
+            $query->where('warehouse_id', auth()->user()->warehouse->id);
+        }
+
+        return $query;
     }
 
     /**

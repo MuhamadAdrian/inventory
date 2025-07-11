@@ -27,7 +27,7 @@ class ProductRequest extends FormRequest
             'item_code' => ['nullable', 'string', 'max:255', Rule::unique('products', 'item_code')->ignore($this->route('product'))],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
-            'first_stock' => ['required', 'integer', 'min:0'],
+            'first_stock' => ['nullable', 'integer', 'min:0'],
             'category' => ['nullable', 'string', 'max:255'],
             'color' => ['nullable', 'string', 'max:255'],
             'series' => ['nullable', 'string', 'max:255'],

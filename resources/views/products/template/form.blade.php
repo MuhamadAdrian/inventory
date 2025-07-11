@@ -40,7 +40,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
         <label for="price" class="form-label">Price</label>
         <input type="number" step="0.01" class="form-control rounded-md @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', $isEdit ? $product->price : '') }}" required min="0">
         @error('price')
@@ -48,15 +48,7 @@
         @enderror
     </div>
 
-    <div class="col-md-4 mb-3">
-        <label for="first_stock" class="form-label">First Stock</label>
-        <input type="number" class="form-control rounded-md @error('first_stock') is-invalid @enderror" id="first_stock" name="first_stock" value="{{ old('first_stock', $isEdit ? $product->first_stock : '') }}" required min="0">
-        @error('first_stock')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-
-    <div class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
         <label for="category" class="form-label">Category</label>
         <input type="text" class="form-control rounded-md @error('category') is-invalid @enderror" id="category" name="category" value="{{ old('category', $isEdit ? $product->category : '') }}" list="categoryOptions">
         <datalist id="categoryOptions">

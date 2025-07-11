@@ -1,20 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\Product;
 
 use App\DataTables\ProductsDataTable;
+use App\Http\Controllers\Admin\AppController;
 use App\Http\Requests\ProductRequest;
+use App\Http\Requests\UpdateStockRequest;
 use App\Models\Product;
-use App\Services\ProductService;
+use App\Services\Product\ProductService;
+use App\Services\Product\StockService;
 use Illuminate\Http\Request;
 use Milon\Barcode\DNS1D;
 
 class ProductController extends AppController
 {
     protected ProductService $productService;
+    protected StockService $stockService;
     
 
-    public function __construct(Request $request, ProductService $productService)
+    public function __construct(Request $request, ProductService $productService, StockService $stockService)
     {
         parent::__construct($request);
 
@@ -26,6 +30,7 @@ class ProductController extends AppController
         $this->middleware('can:scan barcode')->only(['processScanStock', 'showScanStockForm']);
 
         $this->productService = $productService;
+        $this->stockService = $stockService;
 
         config([
             'site.header' => 'Product List',
@@ -168,5 +173,12 @@ class ProductController extends AppController
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
+    }
+
+    public function updateStock(UpdateStockRequest $request)
+    {
+        $this->stockService->updateProductStock($request);
+
+        return redirect()->route('products.index')->with('success', 'Product stock has been updated !');
     }
 }

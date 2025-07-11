@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\User;
 
+use App\Http\Controllers\Admin\AppController;
 use App\Http\Requests\PermissionRequest;
-use App\Services\PermissionService;
+use App\Services\User\PermissionService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 

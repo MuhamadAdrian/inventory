@@ -19,7 +19,7 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'first_stock',
+        'stock',
         'item_code', // Kode Barang (Item Code)
         'color',     // Warna (Color)
         'series',    // Seri (Series)

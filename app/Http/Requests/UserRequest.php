@@ -27,9 +27,9 @@ class UserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($id)],
-            'password' => ['string', 'min:8', 'confirmed', Rule::requiredIf($this->isMethod('post'))], // Password can be null if not changing
-            'roles' => ['nullable', 'array'],
-            'roles.*' => ['exists:roles,name'],
+            'password' => ['confirmed', Rule::requiredIf($this->isMethod('post'))], // Password can be null if not changing
+            'roles' => ['nullable', 'string', 'exists:roles,name'],
+            'warehouse_id' => ['nullable', 'exists:warehouses,id', 'integer']
         ];
     }
 }

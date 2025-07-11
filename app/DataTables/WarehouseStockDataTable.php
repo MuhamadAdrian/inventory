@@ -3,7 +3,9 @@
 namespace App\DataTables;
 
 use App\Models\Product;
+use App\Models\WarehouseProductStock;
 use App\Services\Product\ProductService;
+use App\Services\Product\WarehouseProductService;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Milon\Barcode\DNS1D;
 use Yajra\DataTables\EloquentDataTable;
@@ -14,28 +16,30 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class ProductsDataTable extends DataTable
+class WarehouseStockDataTable extends DataTable
 {
+    protected $warehouseProductService;
     protected $productService;
 
-    public function __construct(ProductService $productService) {
+    public function __construct(WarehouseProductService $warehouseProductService, ProductService $productService) {
+        $this->warehouseProductService = $warehouseProductService;
         $this->productService = $productService;
     }
 
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder<Product> $query Results from query() method.
+     * @param QueryBuilder<WarehouseProductStock> $query Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', 'products.template.action')
-            ->addColumn('barcode', function (Product $product) {
-                return $product->item_code ? $this->productService->generateBarcode($product->item_code) : '-';
+            ->addColumn('action', 'warehouse-products.template.action')
+            ->addColumn('barcode', function (WarehouseProductStock $warehouseProduct) {
+                return $warehouseProduct->product->item_code ? $this->productService->generateBarcode($warehouseProduct->product->item_code) : '-';
             })
-            ->editColumn('stock', function (Product $product) {
-                return $product->stock ?? '0';
+            ->editColumn('stock', function (WarehouseProductStock $warehouseProduct) {
+                return $warehouseProduct->stock ?? '0';
             })
             ->addIndexColumn()
             ->rawColumns(['action', 'barcode'])
@@ -47,9 +51,10 @@ class ProductsDataTable extends DataTable
      *
      * @return QueryBuilder<Product>
      */
-    public function query(Product $model): QueryBuilder
+    public function query(WarehouseProductStock $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()
+            ->with(['product']);
     }
 
     /**
@@ -58,7 +63,7 @@ class ProductsDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('products-table')
+                    ->setTableId('warehouse-products-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->orderBy(1)
@@ -98,14 +103,10 @@ class ProductsDataTable extends DataTable
                 ->orderable(false)
                 ->width(50)
                 ->addClass('text-center'),
-            Column::make('barcode')
-                ->searchable(false)
-                ->orderable(false)
-                ->addClass('text-start'),
-            Column::make('name'),
-            Column::make('price'),
+            Column::make('product.name'),
             Column::make('stock')
                 ->title('Stock'),
+            Column::make('price'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
