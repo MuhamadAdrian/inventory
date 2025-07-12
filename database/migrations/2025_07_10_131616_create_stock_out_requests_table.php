@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stock_transfer_requests', function (Blueprint $table) {
+        Schema::create('stock_out_requests', function (Blueprint $table) {
             $table->id();
             $table->date('request_date')->default(now()); // Tanggal permintaan dibuat
             $table->date('desired_arrival_date')->nullable(); // Tanggal diinginkan barang sampai
             $table->foreignId('sender_id')->constrained('business_locations')->onDelete('cascade');
             $table->foreignId('receiver_id')->constrained('business_locations')->onDelete('cascade');
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending'); // Status: pending, processing, completed, cancelled
+            $table->enum('status', ['pending', 'processing', 'shipping', 'completed', 'cancelled'])->default('pending'); // Status: pending, processing, completed, cancelled
             $table->text('notes')->nullable();
             $table->morphs('created_by');
             $table->timestamps();
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stock_transfer_requests');
+        Schema::dropIfExists('stock_out_requests');
     }
 };

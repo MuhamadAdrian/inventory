@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StockTransferItem extends Model
+class StockOutRequestItem extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'stock_transfer_request_id',
+        'stock_out_request_id',
         'product_id',
         'quantity',
         'status',
@@ -24,9 +24,9 @@ class StockTransferItem extends Model
     /**
      * Dapatkan permintaan transfer stok yang memiliki item ini.
      */
-    public function stockTransferRequest(): BelongsTo
+    public function stockOutRequest(): BelongsTo
     {
-        return $this->belongsTo(StockTransferRequest::class);
+        return $this->belongsTo(StockOutRequest::class);
     }
 
     /**

@@ -23,7 +23,8 @@ class UpdateStockRequest extends FormRequest
     {
         return [
             'product_id' => 'required|integer|exists:products,id',
-            'stock'      => 'required|integer'
+            'stock'      => 'required|integer',
+            'business_location_id' => 'nullable|integer|exists:business_locations,id'
         ];
     }
 }

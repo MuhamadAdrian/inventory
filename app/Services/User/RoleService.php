@@ -20,9 +20,9 @@ class RoleService
   {
       $exclusions = [
           'owner'  => [],
-          'admin'  => ['owner'],
-          'gudang' => ['owner', 'admin'],
-          'kasir'  => ['owner', 'admin', 'gudang'],
+          'staff'  => ['owner'],
+          'gudang' => ['owner', 'staff'],
+          'kasir'  => ['owner', 'staff', 'gudang'],
       ];
 
       // Gather all roles to exclude based on current roles

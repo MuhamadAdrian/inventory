@@ -29,7 +29,7 @@ class UserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($id)],
             'password' => ['confirmed', Rule::requiredIf($this->isMethod('post'))], // Password can be null if not changing
             'roles' => ['nullable', 'string', 'exists:roles,name'],
-            'warehouse_id' => ['nullable', 'exists:warehouses,id', 'integer']
+            'business_location_id' => ['nullable', 'exists:business_locations,id', 'integer']
         ];
     }
 }

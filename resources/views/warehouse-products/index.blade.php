@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Warehouse Stock Management</h1>
         @can('stock request')
-        <a href="{{ route('stock-transfers.create') }}" class="btn btn-primary rounded-md shadow-sm">
+        <a href="{{ route('stock-out-requests.create') }}" class="btn btn-primary rounded-md shadow-sm">
             Request New Stock
         </a>
         @endcan

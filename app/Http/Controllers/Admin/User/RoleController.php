@@ -86,7 +86,7 @@ class RoleController extends AppController
     public function destroy(Role $role)
     {
         // Prevent deleting core roles if needed, e.g., 'owner'
-        if (in_array($role->name, ['owner', 'admin', 'gudang', 'kasir'])) {
+        if (in_array($role->name, ['owner', 'staff', 'gudang', 'kasir'])) {
             return redirect()->route('roles.index')->with('error', 'Cannot delete core system roles.');
         }
 

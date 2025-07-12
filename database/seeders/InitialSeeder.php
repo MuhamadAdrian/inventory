@@ -90,7 +90,7 @@ class InitialSeeder extends Seeder
 
         // Create a center gudang user
         $gudangProfile = BusinessLocation::create([
-            'name' => 'Gudang Bandung',
+            'name' => 'Gudang Pusat',
             'city' => 'Bandung',
             'area' => 'Cibiru',
             'phone' => '08892309239',
@@ -99,16 +99,16 @@ class InitialSeeder extends Seeder
         ]);
 
         $officeProfile = BusinessLocation::create([
-            'name' => 'Kantor Bandung',
+            'name' => 'Online',
             'city' => 'Bandung',
             'area' => 'Cibiru',
             'phone' => '08892309239',
-            'type' => 'office',
+            'type' => 'online',
             'code' => 'KP-0001'
         ]);
 
         $storeProfile = BusinessLocation::create([
-            'name' => 'Toko Bandung',
+            'name' => 'Alisha Store',
             'city' => 'Bandung',
             'area' => 'Cibiru',
             'phone' => '08892309239',

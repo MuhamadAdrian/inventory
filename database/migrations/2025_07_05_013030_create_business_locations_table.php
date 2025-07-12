@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('area')->nullable();
             $table->string('phone')->nullable();
-            $table->enum('type', ['warehouse', 'store', 'office'])->default('store');
+            $table->enum('type', ['warehouse', 'store', 'online'])->default('store');
             $table->timestamps();
         });
     }

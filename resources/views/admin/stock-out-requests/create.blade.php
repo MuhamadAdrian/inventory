@@ -5,18 +5,18 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         @role('gudang')
-        <h1 class="h3 mb-0">Buat Permintaan Transfer Stok Baru</h1>
+        <h1 class="h3 mb-0">Buat Permintaan Stok Keluar</h1>
         @endrole
 
-        @role('admin')
+        @role('staff')
         <h1 class="h3 mb-0">Tambah Stock Gudang</h1>
         @endrole
 
         @role('owner')
         <h1 class="h3 mb-0">Tambah Stock Gudang</h1>
         @endrole
-        <a href="{{ route('stock-transfers.index') }}" class="btn btn-secondary rounded-md shadow-sm">
-            Kembali ke Daftar Transfer
+        <a href="{{ route('stock-out-requests.index') }}" class="btn btn-secondary rounded-md shadow-sm">
+            Kembali ke Daftar Permintaan Stok Keluar
         </a>
     </div>
 
@@ -36,7 +36,7 @@
 
     <div class="card shadow-sm rounded-md">
         <div class="card-body">
-            <form action="{{ route('stock-transfers.store') }}" method="POST" id="stockTransferForm">
+            <form action="{{ route('stock-out-requests.store') }}" method="POST" id="StockOutRequestForm">
                 @csrf
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -57,41 +57,36 @@
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="sender_warehouse_id" class="form-label">Gudang Pengirim</label>
-                        <select class="form-select rounded-md @error('sender_warehouse_id') is-invalid @enderror" id="sender_warehouse_id" name="sender_warehouse_id" required>
-                            <option value="">-- Pilih Gudang Pengirim --</option>
-                            @foreach ($warehouseSenders as $warehouse)
-                                <option value="{{ $warehouse->id }}"
-                                    {{ old('sender_warehouse_id') == $warehouse->id ? 'selected' : '' }}
+                        <label for="sender_id" class="form-label">Pengirim</label>
+                        <select class="form-select rounded-md @error('sender_id') is-invalid @enderror" id="sender_id" name="sender_id" required>
+                            <option value="">-- Pilih Pengirim --</option>
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id }}"
+                                    {{ old('sender_id') == $location->id ? 'selected' : '' }}
                                 >
-                                    {{ $warehouse->name }} ({{ $warehouse->location }})
+                                    {{ $location->name }} ({{ $location->area }})
                                 </option>
                             @endforeach
                         </select>
-                        @error('sender_warehouse_id')
+                        @error('sender_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="receiver_warehouse_id" class="form-label">Gudang Penerima</label>
-                        <select class="form-select rounded-md @error('receiver_warehouse_id') is-invalid @enderror" id="receiver_warehouse_id" name="receiver_warehouse_id" required>
-                            <option value="">-- Pilih Gudang Penerima --</option>
-                            @foreach ($warehouseReceivers as $warehouse)
-                                <option value="{{ $warehouse->id }}"
-                                    {{ old('receiver_warehouse_id', $userWarehouse->id ?? '') == $warehouse->id ? 'selected' : '' }}
-                                    {{ $userWarehouse && $userWarehouse->id == $warehouse->id && !Auth::user()->hasRole('owner') ? 'disabled' : '' }}
+                        <label for="receiver_id" class="form-label">Penerima</label>
+                        <select class="form-select rounded-md @error('receiver_id') is-invalid @enderror" id="receiver_id" name="receiver_id" required>
+                            <option value="">-- Pilih Penerima --</option>
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id }}"
+                                    {{ old('receiver_id') == $location->id ? 'selected' : '' }}
                                 >
-                                    {{ $warehouse->name }} ({{ $warehouse->location }})
+                                    {{ $location->name }} ({{ $location->area }})
                                 </option>
                             @endforeach
                         </select>
-                        @error('receiver_warehouse_id')
+                        @error('receiver_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-
-                        @if ($userWarehouse && !Auth::user()->hasRole('owner'))
-                            <input type="hidden" name="receiver_warehouse_id" value="{{ old('receiver_warehouse_id', $userWarehouse->id) }}">
-                        @endif
                     </div>
                 </div>
 
@@ -105,14 +100,14 @@
 
                 <hr class="my-4">
 
-                @role('admin')
-                <h4>Pilih Produk untuk Ditambah</h4>
+                @role('staff')
+                <h4>Pilih Produk</h4>
                 @endrole
                 @role('owner')
-                <h4>Pilih Produk untuk Ditambah</h4>
+                <h4>Pilih Produk</h4>
                 @endrole
                 @role('gudang')
-                <h4>Pilih Produk untuk Diminta</h4>
+                <h4>Pilih Produk</h4>
                 @endrole
                 <div class="alert alert-info" id="productSelectionMessage" style="display:none;">
                     Harap pilih setidaknya satu produk dan tentukan kuantitasnya.
@@ -136,7 +131,7 @@
 
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary rounded-md shadow-sm">
-                        <i class="bi bi-send-fill me-2"></i> Kirim Permintaan Transfer
+                        <i class="bi bi-send-fill me-2"></i> Kirim Permintaan Stok Keluar
                     </button>
                 </div>
             </form>
@@ -156,12 +151,12 @@
         var productsSelectionTable = $('#products-selection-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{!! route('stock-transfers.products_for_selection_data') !!}',
+            ajax: '{!! route('stock-out-requests.products_for_selection_data') !!}',
             columns: [
                 { data: 'id', name: 'id' },
                 { data: 'item_code', name: 'item_code' },
                 { data: 'name', name: 'name' },
-                { data: 'price', name: 'price' },
+                { data: 'formatted_price', name: 'formatted_price', orderable: false, searchable: false },
                 { data: 'quantity_input', name: 'quantity_input', orderable: false, searchable: false }
             ],
             order: [[0, 'asc']],
@@ -216,13 +211,13 @@
 
         // Fungsi untuk memperbarui input tersembunyi 'products[]'
         function updateHiddenProductsInput() {
-            $('#stockTransferForm input[name^="products"]').remove(); // Hapus input lama
+            $('#StockOutRequestForm input[name^="products"]').remove(); // Hapus input lama
             let hasSelectedProducts = false;
             for (const productId in selectedProducts) {
                 if (selectedProducts[productId] > 0) {
                     hasSelectedProducts = true;
                     // Tambahkan input tersembunyi untuk setiap produk yang dipilih
-                    $('#stockTransferForm').append(
+                    $('#StockOutRequestForm').append(
                         `<input type="hidden" name="products[${productId}][product_id]" value="${productId}">` +
                         `<input type="hidden" name="products[${productId}][quantity]" value="${selectedProducts[productId]}">`
                     );
@@ -241,7 +236,7 @@
         updateHiddenProductsInput();
 
         // Validasi formulir sebelum submit
-        $('#stockTransferForm').on('submit', function(e) {
+        $('#StockOutRequestForm').on('submit', function(e) {
             updateHiddenProductsInput(); // Pastikan input tersembunyi diperbarui
 
             // Periksa apakah ada produk yang dipilih dengan kuantitas > 0
@@ -263,11 +258,6 @@
             }
             $('#productSelectionMessage').hide();
         });
-
-        // Jika pengguna adalah gudang, atur gudang pengirim secara otomatis dan nonaktifkan
-        @if ($userWarehouse && !Auth::user()->hasRole('owner'))
-            $('#receiver_warehouse_id').val('{{ $userWarehouse->id }}').prop('disabled', true);
-        @endif
     });
 </script>
 @endpush

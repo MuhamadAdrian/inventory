@@ -28,7 +28,7 @@ class UserService {
       'name' => $request->name,
       'email' => $request->email,
       'password' => Hash::make($request->password),
-      'warehouse_id' => $request->warehouse_id
+      'business_location_id' => $request->business_location_id
     ]);
   }
 

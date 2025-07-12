@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stock_transfer_items', function (Blueprint $table) {
+        Schema::create('stock_out_request_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('stock_transfer_request_id')->constrained('stock_transfer_requests')->onDelete('cascade');
+            $table->foreignId('stock_out_request_id')->constrained('stock_out_requests')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->integer('quantity');
             $table->enum('status', ['requested', 'transferred', 'received', 'rejected'])->default('requested');
             $table->timestamps();
 
-            $table->unique(['stock_transfer_request_id', 'product_id'], 'stock_transfer_item_unique');
+            $table->unique(['stock_out_request_id', 'product_id'], 'stock_out_request_item_unique');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stock_transfer_items');
+        Schema::dropIfExists('stock_out_request_items');
     }
 };

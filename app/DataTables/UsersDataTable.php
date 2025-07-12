@@ -52,9 +52,9 @@ class UsersDataTable extends DataTable
     {
         $exclusions = [
             'owner'  => [],
-            'admin'  => ['owner'],
-            'gudang' => ['owner', 'admin'],
-            'kasir'  => ['owner', 'admin', 'gudang'],
+            'staff'  => ['owner'],
+            'gudang' => ['owner', 'staff'],
+            'kasir'  => ['owner', 'staff', 'gudang'],
         ];
 
         // Combine exclusion rules from current roles
@@ -122,9 +122,11 @@ class UsersDataTable extends DataTable
                 ->orderable(false)
                 ->width(50)
                 ->addClass('text-center'),
-            Column::make('name'),
+            Column::make('name')
+                ->title('Nama'),
             Column::make('email'),
             Column::make('location')
+                ->title('Lokasi')
                 ->orderable(false),
             Column::make('roles')
                 ->title('Roles'),

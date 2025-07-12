@@ -35,18 +35,16 @@ Route::controller(ProductController::class)->prefix('products')->name('products.
 Route::resource('products', ProductController::class)->except(['show']);
 
 // Stock
-Route::controller(StockController::class)->prefix('stock-transfers')->name('stock-transfers.')->group(function() {
+Route::controller(StockController::class)->prefix('stock-out-requests')->name('stock-out-requests.')->group(function() {
     Route::get('products', 'getProductsForSelectionData')->name('products_for_selection_data');
-});
-
-Route::get('products-warehouse', [WarehouseProductController::class, 'index'])->name('products-warehouse.index');
-
-Route::controller(StockController::class)->prefix('stock-transfers')->name('stock-transfers.')->group(function(){
-    Route::put('process-transfer/{stock_transfer}', 'processTransfer')->name('process_transfer');
+    Route::put('process-stock-out/{stock_out_request}', 'processTransfer')->name('process');
     Route::get('data', 'data')->name('data');
-    Route::put('cancel/{stock_transfer}', 'cancelTransfer')->name('cancel_transfer');
+    Route::put('cancel/{stock_out_request}', 'cancelTransfer')->name('cancel');
+    Route::post('{stock_out_request}/print', 'printStockOutRequest')->name('print');
+    Route::post('{stock_out_request}/send', 'sendStockOutRequest')->name('send');
+    Route::post('{stock_out_request}/scan/{item_id}', 'scanStockOutItem')->name('item.scan');
 });
-Route::resource('stock-transfers', StockController::class)->except(['edit', 'update', 'destroy']);
+Route::resource('stock-out-requests', StockController::class)->except(['edit', 'update', 'destroy']);
 
 // Location Management
 Route::controller(BusinessLocationController::class)

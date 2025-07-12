@@ -6,7 +6,7 @@
         <h1 class="h3 mb-0">{{ config('site.header') }}</h1>
         @can('create account')
         <a href="{{ route('users.create') }}" class="btn btn-primary rounded-md shadow-sm">
-            Add New User
+            Buat Akun
         </a>
         @endcan
     </div>

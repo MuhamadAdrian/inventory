@@ -10,14 +10,6 @@
           <svg class="icon icon-lg">
             <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-bell') }}"></use>
           </svg></a></li>
-      <li class="nav-item"><a class="nav-link" href="#">
-          <svg class="icon icon-lg">
-            <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-list-rich') }}"></use>
-          </svg></a></li>
-      <li class="nav-item"><a class="nav-link" href="#">
-          <svg class="icon icon-lg">
-            <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-envelope-open') }}"></use>
-          </svg></a></li>
     </ul>
     <ul class="header-nav">
       <li class="nav-item py-1">
@@ -58,9 +50,14 @@
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link py-0 pe-0" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-          <p class="d-inline">{{ Auth::user()->name }}</p>
-          <div class="avatar avatar-md">
-            <img class="avatar-img" src="assets/img/avatars/8.jpg" alt="user@email.com">
+          <div class="d-flex gap-2">
+            <div class="d-flex flex-column align-items-end">
+              <p class="m-0">{{ Auth::user()->name }}</p>
+              <p class="m-0" style="font-size: 12px">{{ Auth::user()->email }}</p>
+            </div>
+            <div class="avatar avatar-md">
+              <img class="avatar-img" src="{{ asset('assets/images/avatar.webp') }}" alt="{{ Auth::user()->name }}">
+            </div>
           </div>
         </a>
         <div class="dropdown-menu dropdown-menu-end pt-0">

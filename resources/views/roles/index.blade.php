@@ -7,7 +7,7 @@
         <h1 class="h3 mb-0">Role Management</h1>
         @can('create role')
         <a href="{{ route('roles.create') }}" class="btn btn-primary rounded-md shadow-sm">
-            Add New Role
+            Tambah Role
         </a>
         @endcan
     </div>

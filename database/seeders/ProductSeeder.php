@@ -22,14 +22,15 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::where('email', 'admin@example.com')->first();
+        $user = User::where('email', 'staff1@gmail.com')->first();
 
         // Create 50 fake products
         Product::factory(50)->create()->each(function (Product $product) use ($user) {
             $request = new UpdateStockRequest();
             $request->merge([
                 'product_id' => $product->id,
-                'stock' => 100
+                'stock' => 100,
+                'business_location_id' => 1
             ]);
 
             try {

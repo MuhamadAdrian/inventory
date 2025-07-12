@@ -41,7 +41,8 @@ class StockService
           'quantity'    => $request->stock,
           'causer_type' => $userType ?? User::class,
           'causer_id'   => $userId ?? Auth::id(),
-          'stock'       => $newStockTotal
+          'stock'       => $newStockTotal,
+          'business_location_id' => $request->business_location_id ?? null,
         ]);
 
       return $productStock->product()->update([

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\User;
 use App\DataTables\UsersDataTable;
 use App\Http\Controllers\Admin\AppController;
 use App\Http\Requests\UserRequest;
+use App\Models\BusinessLocation;
 use App\Models\User;
 use App\Models\Warehouse;
 use App\Services\User\RoleService;
@@ -30,9 +31,9 @@ class UserController extends AppController
         $this->roleService = $roleService;
 
         config([
-            'site.header' => 'Account List',
+            'site.header' => 'Daftar Akun',
             'site.breadcrumbs' => [
-                ['name' => 'Accounts', 'url' => route('users.index')],
+                ['name' => 'Daftar Akun', 'url' => route('users.index')],
             ]
         ]);
     }
@@ -54,19 +55,19 @@ class UserController extends AppController
     public function create()
     {
         config([
-            'site.header' => 'Account List | Create',
+            'site.header' => 'Daftar Akun | Buat',
             'site.breadcrumbs' => [
-                ['name' => 'Accounts', 'url' => route('users.index')],
-                ['name' => 'Create', 'url' => route('users.create')],
+                ['name' => 'Akun', 'url' => route('users.index')],
+                ['name' => 'Buat', 'url' => route('users.create')],
             ]
         ]);
 
-        $warehouses = Warehouse::all();
+        $locations = BusinessLocation::all();
 
         $currentRole = auth()->user()->roles->pluck('name')->toArray();
         // Get all roles to allow assignment
         $roles = $this->roleService->getAll($currentRole);
-        return view('users.create', compact('roles', 'warehouses'));
+        return view('users.create', compact('roles', 'locations'));
     }
 
     /**
@@ -90,13 +91,13 @@ class UserController extends AppController
      */
     public function edit(User $user)
     {
-        $warehouses = Warehouse::all();
+        $locations = BusinessLocation::all();
 
         $currentRole = auth()->user()->roles->pluck('name')->toArray();
         // Get all roles and the roles currently assigned to the user
         $roles = $this->roleService->getAll($currentRole);
         $userRoles = $user->roles->pluck('name')->toArray();
-        return view('users.edit', compact('user', 'roles', 'userRoles', 'warehouses'));
+        return view('users.edit', compact('user', 'roles', 'userRoles', 'locations'));
     }
 
     /**

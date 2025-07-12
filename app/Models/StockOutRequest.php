@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class StockTransferRequest extends Model
+class StockOutRequest extends Model
 {
     use HasFactory;
 
@@ -21,12 +22,32 @@ class StockTransferRequest extends Model
         'notes',
         'created_by_type',
         'created_by_id',
+        'document_printed_at',
+        'approver_id'
     ];
 
     protected $casts = [
         'request_date' => 'date',
         'desired_arrival_date' => 'date',
+        'document_printed_at' => 'datetime'
     ];
+
+    // ======================== Accessores and Mutators ========================
+
+    protected function status(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                $user = auth()->user();
+
+                if ($user && $user->getRoleNames()[0] === 'gudang' && $value === 'processing') {
+                    return 'Perlu dikirim';
+                }
+
+                return $value;
+            },
+        );
+    }
 
     /**
      * Dapatkan gudang pengirim.
@@ -49,7 +70,7 @@ class StockTransferRequest extends Model
      */
     public function items(): HasMany
     {
-        return $this->hasMany(StockTransferItem::class);
+        return $this->hasMany(StockOutRequestItem::class);
     }
 
     /**
@@ -58,5 +79,10 @@ class StockTransferRequest extends Model
     public function createdBy(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approver_id');
     }
 }

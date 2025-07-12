@@ -7,7 +7,7 @@
         <h1 class="h3 mb-0">Product Management</h1>
         @can('create product')
         <a href="{{ route('products.create') }}" class="btn btn-primary rounded-md shadow-sm">
-            Add New Product
+            Tambah Produk Baru
         </a>
         @endcan
     </div>

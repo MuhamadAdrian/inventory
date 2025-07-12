@@ -3,10 +3,10 @@
 @section('content')
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Manajemen Transfer Stok</h1>
-        @can('stock input to warehouse')
-        <a href="{{ route('stock-transfers.create') }}" class="btn btn-primary rounded-md shadow-sm">
-            Buat Permintaan Transfer Baru
+        <h1 class="h3 mb-0">{{ config('site.header') }}</h1>
+        @can('create stock request')
+        <a href="{{ route('stock-out-requests.create') }}" class="btn btn-primary rounded-md shadow-sm">
+            Buat Permintaan Baru
         </a>
         @endcan
     </div>
@@ -28,17 +28,16 @@
     <div class="card shadow-sm rounded-md">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0" id="stock-transfers-table">
+                <table class="table table-hover table-striped mb-0" id="stock-out-requests-table">
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Tanggal Permintaan</th>
-                            <th scope="col">Tanggal Tiba Diinginkan</th>
-                            <th scope="col">Gudang Pengirim</th>
-                            <th scope="col">Gudang Penerima</th>
+                            <th scope="col">Tgl Permintaan</th>
+                            <th scope="col">Estimasi Tiba</th>
+                            <th scope="col">Pengirim</th>
+                            <th scope="col">Penerima</th>
                             <th scope="col">Status</th>
                             <th scope="col">Dibuat Oleh</th>
-                            <th scope="col">Tanggal Dibuat</th>
+                            <th scope="col">Tgl Dibuat</th>
                             <th scope="col" class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -57,22 +56,21 @@
 
 <script>
     $(function() {
-        $('#stock-transfers-table').DataTable({
+        $('#stock-out-requests-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{!! route('stock-transfers.data') !!}',
+            ajax: '{!! route('stock-out-requests.data') !!}',
             columns: [
-                { data: 'id', name: 'id' },
                 { data: 'request_date', name: 'request_date' },
                 { data: 'desired_arrival_date', name: 'desired_arrival_date' },
-                { data: 'sender_warehouse_name', name: 'senderWarehouse.name' },
-                { data: 'receiver_warehouse_name', name: 'receiverWarehouse.name' },
+                { data: 'sender_name', name: 'sender.name' },
+                { data: 'receiver_name', name: 'receiver.name' },
                 { data: 'status', name: 'status' },
                 { data: 'created_by_name', name: 'createdBy.name', orderable: false, searchable: false },
                 { data: 'created_at', name: 'created_at' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
-            order: [[0, 'desc']]
+            order: [[6, 'desc']]
         });
     });
 </script>

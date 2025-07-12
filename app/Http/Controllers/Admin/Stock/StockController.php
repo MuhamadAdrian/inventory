@@ -2,40 +2,43 @@
 
 namespace App\Http\Controllers\Admin\Stock;
 
-use App\DataTables\WarehouseStockDataTable;
 use App\Http\Controllers\Admin\AppController;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StockTransferRequest;
+use App\Http\Requests\StockOutRequestRequest;
 use App\Models\Product;
-use App\Models\StockTransferRequest as ModelsStockTransferRequest;
-use App\Models\Warehouse;
+use App\Models\StockOutRequest;
+use App\Services\BusinessLocation\BusinessLocationService;
 use App\Services\Product\ProductService;
-use App\Services\Product\StockService;
-use App\Services\Stock\StockTransferService;
+use App\Services\Stock\StockOutRequestService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Milon\Barcode\DNS2D;
 use Yajra\DataTables\Facades\DataTables;
 
 class StockController extends AppController
 {
     protected ProductService $productService;
-    protected StockTransferService $stockTransferService;
+    protected StockOutRequestService $stockOutRequestService;
+    protected BusinessLocationService $businessLocationService;
     
-    public function __construct(Request $request, ProductService $productService, StockTransferService $stockTransferService)
-    {
+    public function __construct(
+        Request $request,
+        ProductService $productService,
+        StockOutRequestService $stockOutRequestService,
+        BusinessLocationService $businessLocationService
+    ) {
         parent::__construct($request);
 
         $this->middleware('can:view stock request')->only(['index', 'show', 'data']);
         $this->middleware('can:approval stock request')->only(['destory', 'processTransfer']);
 
         $this->productService = $productService;
-        $this->stockTransferService = $stockTransferService;
+        $this->stockOutRequestService = $stockOutRequestService;
+        $this->businessLocationService = $businessLocationService;
 
         config([
-            'site.header' => 'Stock Management',
+            'site.header' => 'Stock Out Management',
             'site.breadcrumbs' => [
-                ['name' => 'Stock', 'url' => route('stock-transfers.index')],
+                ['name' => 'Stock Out Request', 'url' => route('stock-out-requests.index')],
             ]
         ]);
     }
@@ -45,7 +48,7 @@ class StockController extends AppController
      */
     public function index()
     {
-        return view('stocks.index');
+        return view('admin.stock-out-requests.index');
     }
 
     /**
@@ -53,27 +56,38 @@ class StockController extends AppController
      */
     public function data()
     {
-        $requests = $this->stockTransferService->getTransferRequestsForDataTables();
+        $requests = $this->stockOutRequestService->getTransferRequestsForDataTables();
 
         return DataTables::of($requests)
-            ->addColumn('sender_warehouse_name', function (ModelsStockTransferRequest $request) {
-                return $request->senderWarehouse->name ?? 'N/A';
+            ->addColumn('sender_name', function (StockOutRequest $request) {
+                return $request->sender->name ?? 'N/A';
             })
-            ->addColumn('receiver_warehouse_name', function (ModelsStockTransferRequest $request) {
-                return $request->receiverWarehouse->name ?? 'N/A';
+            ->addColumn('receiver_name', function (StockOutRequest $request) {
+                return $request->receiver->name ?? 'N/A';
             })
-            ->addColumn('created_by_name', function (ModelsStockTransferRequest $request) {
+            ->addColumn('created_by_name', function (StockOutRequest $request) {
                 return $request->createdBy->name ?? 'System';
             })
-            ->addColumn('action', function (ModelsStockTransferRequest $request) {
-                return view('stocks.template.action', compact('request'));
+            ->addColumn('action', function (StockOutRequest $request) {
+                return view('admin.stock-out-requests.template.action', compact('request'));
             })
-            ->editColumn('status', function (ModelsStockTransferRequest $request) {
+            ->editColumn('request_date', function (StockOutRequest $request) {
+                return $request->request_date->format('d-m-Y');
+            })
+            ->editColumn('desired_arrival_date', function (StockOutRequest $request) {
+                return $request->desired_arrival_date ? $request->desired_arrival_date->format('d-m-Y') : 'N/A';
+            })
+            ->editColumn('created_at', function (StockOutRequest $request) {
+                return $request->created_at->format('d-m-Y');
+            })
+            ->editColumn('status', function (StockOutRequest $request) {
                 switch ($request->status) {
-                    case 'pending':
+                    case 'pending':  
                         return '<span class="badge bg-warning">'.ucfirst($request->status).'</span>';
                     case 'processing':
                         return '<span class="badge bg-info">'.ucfirst($request->status).'</span>';
+                    case 'Perlu dikirim':
+                        return '<span class="badge bg-warning">'.ucfirst($request->status).'</span>';
                     case 'completed':
                         return '<span class="badge bg-success">'.ucfirst($request->status).'</span>';
                     case 'cancelled':
@@ -91,32 +105,31 @@ class StockController extends AppController
      */
     public function create()
     {
-        if (!auth()->user()->can('stock request') && !auth()->user()->can('stock input to warehouse'))
+        if (!auth()->user()->can('create stock request') && !auth()->user()->can('direct stock out'))
         {
             return abort(403, 'User does not have the right permissions.');
         }
-        $userWarehouse = Auth::user()->warehouse; // Gudang pengguna yang sedang login
-        $warehouseSenders = Warehouse::whereNot('id', $userWarehouse->id)->get();
-        $warehouseReceivers = Warehouse::all();
 
-        return view('stocks.create', compact('warehouseSenders', 'warehouseReceivers', 'userWarehouse'));
+        $locations = $this->businessLocationService->businessLocationQuery()->get();
+
+        return view('admin.stock-out-requests.create', compact('locations'));
     }
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StockTransferRequest $request)
+    public function store(StockOutRequestRequest $request)
     {
-        if (!auth()->user()->can('stock request') && !auth()->user()->can('stock input to warehouse'))
+        if (!auth()->user()->can('create stock request') && !auth()->user()->can('direct stock out'))
         {
             return abort(403, 'User does not have the right permissions.');
         }
         try {
-            $this->stockTransferService->createTransferRequest(
-                $request->only(['request_date', 'desired_arrival_date', 'sender_warehouse_id', 'receiver_warehouse_id', 'notes']),
+            $this->stockOutRequestService->createTransferRequest(
+                $request->only(['request_date', 'desired_arrival_date', 'sender_id', 'receiver_id', 'notes']),
                 $request->input('products')
             );
 
-            return redirect()->route('stock-transfers.index')->with('success', 'Permintaan transfer stok berhasil dibuat!');
+            return redirect()->route('stock-out-requests.index')->with('success', 'Permintaan transfer stok berhasil dibuat!');
         } catch (Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membuat permintaan transfer stok: ' . $e->getMessage());
         }
@@ -127,9 +140,23 @@ class StockController extends AppController
      */
     public function show($id)
     {
-        $stockTransferRequestModel = $this->stockTransferService->stockTransferRequestQuery()->find($id);
-        $stockTransferRequestModel->load(['senderWarehouse', 'receiverWarehouse', 'createdBy', 'items.product']);
-        return view('stocks.show', compact('stockTransferRequestModel'));
+        $stockOutRequest = $this->stockOutRequestService->stockOutRequestQuery()->find($id);
+        $stockOutRequest->load(['sender', 'receiver', 'createdBy', 'items.product']);
+
+        $dns2d = new DNS2D();
+        $stockOutRequest->items->each(function ($item) use ($stockOutRequest, $dns2d) {
+            $item->qr_scan_url = 'data:image/png;base64,' .
+                $dns2d->getBarcodePNG(
+                    route('stock-out-requests.item.scan', [
+                        'stock_out_request' => $stockOutRequest->id,
+                        'item_id' => $item->id
+                    ]),
+                    'QRCODE',
+                    2,
+                    2
+                );
+        });
+        return view('admin.stock-out-requests.show', compact('stockOutRequest'));
     }
 
     /**
@@ -137,23 +164,11 @@ class StockController extends AppController
      */
     public function cancelTransfer(int $id)
     {
-        $stockTransferRequest = $this->stockTransferService->stockTransferRequestQuery()->find($id);
-
-        if ($stockTransferRequest->status !== 'pending') {
-            return redirect()->back()->with('error', 'Permintaan transfer stok yang sudah diproses atau dibatalkan tidak dapat dihapus.');
-        }
-
         try {
-            $stockTransferRequest->update([
-                'status' => 'cancelled'
-            ]);
-
-            $stockTransferRequest->items()->update([
-                'status' => 'rejected'
-            ]);
-            return redirect()->route('stocks_transfers.index')->with('success', 'Permintaan transfer stok berhasil dihapus.');
+            $this->stockOutRequestService->cancelTransfer($id);
+            return redirect()->route('stock_out_requests.index')->with('success', 'Permintaan transfer stok berhasil dibatalkan.');
         } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus permintaan transfer stok: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal membatalkan permintaan transfer stok: ' . $e->getMessage());
         }
     }
 
@@ -163,10 +178,10 @@ class StockController extends AppController
     public function processTransfer($id)
     {
         try {
-            $this->stockTransferService->processTransfer($id);
-            return redirect()->route('stocks_transfers.index')->with('success', 'Transfer stok berhasil diproses dan diselesaikan!');
+            $this->stockOutRequestService->processTransfer($id);
+            return redirect()->route('stock_out_requests.index')->with('success', 'Permintaan stok keluar berhasil diproses.');
         } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memproses transfer stok: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memproses permintaan stok keluar: ' . $e->getMessage());
         }
     }
 
@@ -175,7 +190,7 @@ class StockController extends AppController
      */
     public function getProductsForSelectionData()
     {
-        $products = $this->stockTransferService->getProductsForSelectionDataTables();
+        $products = $this->stockOutRequestService->getProductsForSelectionDataTables();
 
         return DataTables::of($products)
             ->addColumn('quantity_input', function (Product $product) {
@@ -188,7 +203,67 @@ class StockController extends AppController
                     </div>
                 ";
             })
+            ->addColumn('formatted_price', function(Product $product) {
+                return $product->formatted_price;
+            })
             ->rawColumns(['quantity_input'])
             ->make(true);
+    }
+
+    /**
+     * Scan a stock out item and update its status.
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function sendStockOutRequest(int $id)
+    {
+        try {
+            $stockOutRequest = $this->stockOutRequestService
+                ->stockOutRequestQuery()
+                ->findOrFail($id);
+
+            $this->stockOutRequestService->updateStatusRequestItems($stockOutRequest, 'transferred');
+
+            return redirect()->route('stock-out-requests.index')->with('success', 'Permintaan stock keluar mulai dikirim ke penerima.');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Gagal merubah status ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Print the stock out request document.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function printStockOutRequest(int $id)
+    {
+        try{
+            $stockOutRequest = $this->stockOutRequestService
+                ->stockOutRequestQuery()
+                ->findOrFail($id);
+
+            $this->stockOutRequestService->updateStatusRequestItems($stockOutRequest);
+            $stockOutRequest->load(['sender', 'receiver', 'createdBy', 'items.product', 'approver']);
+
+            $dns2d = new DNS2D();
+
+            $stockOutRequest->items->each(function ($item) use ($stockOutRequest, $dns2d) {
+                $item->qr_scan_url = 'data:image/png;base64,' .
+                    $dns2d->getBarcodePNG(
+                        route('stock-out-requests.item.scan', [
+                            'stock_out_request' => $stockOutRequest->id,
+                            'item_id' => $item->id
+                        ]),
+                        'QRCODE',
+                        2,
+                        2
+                    );
+            });
+
+            return view('admin.stock-out-requests.template.print', compact('stockOutRequest'));
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Gagal membuat dokumen: ' . $e->getMessage());
+        }
     }
 }

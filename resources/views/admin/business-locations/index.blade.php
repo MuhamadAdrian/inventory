@@ -35,7 +35,7 @@
                             <th scope="col">Nama Lokasi</th>
                             <th scope="col">Kode</th>
                             <th scope="col">Kota</th>
-                            <th scope="col">Wilayah</th>
+                            <th scope="col">Area</th>
                             <th scope="col">No Telp</th>
                             <th scope="col">Tipe</th>
                             <th scope="col" class="text-center">Aksi</th>
@@ -65,7 +65,7 @@
                 { data: 'name', name: 'name' },
                 { data: 'code', name: 'code' },
                 { data: 'city', name: 'city' },
-                { data: 'region', name: 'region.name' },
+                { data: 'area', name: 'area' },
                 { data: 'phone', name: 'phone' },
                 { data: 'type', name: 'type' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
