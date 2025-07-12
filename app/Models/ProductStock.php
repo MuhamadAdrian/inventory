@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -16,13 +17,14 @@ class ProductStock extends Model
         'quantity',
         'causer_type',
         'causer_id',
-        'stock'
+        'stock',
+        'business_location_id'
     ];
 
     /**
      * Get the product.
      */
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
@@ -30,7 +32,7 @@ class ProductStock extends Model
     /**
      * Get the user.
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -41,5 +43,13 @@ class ProductStock extends Model
     public function causer(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Get the business location associated with the product stock.
+     */
+    public function businessLocation(): BelongsTo
+    {
+        return $this->belongsTo(BusinessLocation::class, 'business_location_id');
     }
 }

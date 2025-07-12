@@ -26,8 +26,8 @@ class StockController extends AppController
     {
         parent::__construct($request);
 
-        $this->middleware('can:stock request view')->only(['index', 'show', 'data']);
-        $this->middleware('can:stock request process')->only(['destory', 'processTransfer']);
+        $this->middleware('can:view stock request')->only(['index', 'show', 'data']);
+        $this->middleware('can:approval stock request')->only(['destory', 'processTransfer']);
 
         $this->productService = $productService;
         $this->stockTransferService = $stockTransferService;

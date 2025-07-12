@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BusinessLocation;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -21,18 +22,14 @@ class InitialSeeder extends Seeder
 
         // Define Permissions (you can expand this list)
         $permissions = [
-            'create user', 'edit user', 'delete user', 'view user',
-            'create role', 'edit role', 'delete role', 'view role',
-            'assign permissions to roles',
-            'create product', 'edit product', 'delete product', 'view product',
-            'stock monitoring',
-            'scan barcode', 'print barcode',
-            'view stock report', 'print stock report',
-            'nota assignment', 'nota history', 'nota print',
-            'view warehouse product', 'stock request',
-            'stock request view',
-            'stock input to warehouse',
-            'stock request process',
+            'receive notification', 'receive email notification', 'create account', 'view account', 'edit account', 'delete account',
+            'view dashboard', 'create role', 'edit role', 'delete role', 'view role', 'assign permissions to roles',
+            'create business location', 'edit business location', 'delete business location', 'view business location',
+            'view product', 'create product', 'edit product', 'delete product',
+            'view store product', 'view stock request', 'view dashboard',
+            'import product', 'export product', 'update stock product', 'print barcode',
+            'approval stock request', 'export stock request', 'print stock request',
+            'scan barcode in', 'scan barcode out', 'create stock request', 'view product stock history', 'export product stock history', 'direct stock out'
         ];
 
         foreach ($permissions as $permission) {
@@ -41,37 +38,43 @@ class InitialSeeder extends Seeder
 
         // Define Roles and Assign Permissions
         $ownerRole = Role::findOrCreate('owner');
-        $ownerRole->givePermissionTo(Permission::all()); // Owner has all permissions
+        $ownerRole->givePermissionTo([
+            'view dashboard', 'create role', 'edit role', 'delete role', 'view role',
+            'assign permissions to roles',
+            'create account', 'view account', 'edit account', 'delete account',
+            'create business location', 'edit business location', 'delete business location', 'view business location',
+            'view product', 'view store product', 'view stock request',
+            'view product stock history', 'export product stock history'
+        ]);
 
-        $adminRole = Role::findOrCreate('admin');
-        $adminRole->givePermissionTo([
-            'create user', 'edit user', 'delete user', 'view user',
+        $staffRole = Role::findOrCreate('staff');
+        $staffRole->givePermissionTo([
+            'view dashboard', 'import product', 'export product',
             'create product', 'edit product', 'delete product', 'view product',
-            'stock monitoring',
+            'create account', 'edit account', 'delete account', 'view account',
+            'update stock product',
             'print barcode',
-            'print stock report',
-            'stock request view',
-            'stock input to warehouse',
-            'stock request process',
+            'view stock request',
+            'direct stock out',
+            'create stock request',
+            'approval stock request',
+            'export stock request',
+            'view product stock history',
+            'export product stock history'
         ]);
 
         $gudangRole = Role::findOrCreate('gudang');
         $gudangRole->givePermissionTo([
-            'view product',
-            'view warehouse product',
-            'create user', 'edit user', 'delete user', 'view user',
-            'stock monitoring',
-            'stock request',
-            'scan barcode',
-            'view stock report',
-            'nota assignment', 'nota history', 'nota print',
-            'stock request view'
+            'view product', 'export product', 'update stock product', 'print stock request',
+            'create stock request', 'view stock request', 'export stock request', 'view store product',
+            'create account', 'edit account', 'delete account', 'view account',
         ]);
 
         $kasirRole = Role::findOrCreate('kasir');
         $kasirRole->givePermissionTo([
-            'view product',
-            'create user', 'edit user', 'delete user', 'view user'
+            'view store product',
+            'create account', 'edit account', 'delete account', 'view account',
+            'scan barcode in', 'scan barcode out'
         ]);
 
         // Create a default owner user
@@ -86,71 +89,75 @@ class InitialSeeder extends Seeder
         $ownerUser->assignRole('owner');
 
         // Create a center gudang user
-        $gudangProfile = Warehouse::create([
-            'name' => 'Gudang Pusat',
-            'location' => 'Bandung',
+        $gudangProfile = BusinessLocation::create([
+            'name' => 'Gudang Bandung',
+            'city' => 'Bandung',
+            'region' => 'Jawa Barat',
+            'phone' => '08892309239',
+            'type' => 'warehouse',
             'code' => 'GP-0001'
         ]);
 
-        // Create a default admin user
-        $adminUser = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin Pusat',
-                'password' => Hash::make('password'), // Change this in production!
-                'email_verified_at' => now(),
-                'warehouse_id' => $gudangProfile->id
-            ]
-        );
-        $adminUser->assignRole('admin');
-
-        $gudangProfile2 = Warehouse::create([
-            'name' => 'Gudang 1',
-            'location' => 'Cimahi',
-            'code' => 'G-0001'
+        $officeProfile = BusinessLocation::create([
+            'name' => 'Kantor Bandung',
+            'city' => 'Bandung',
+            'region' => 'Jawa Barat',
+            'phone' => '08892309239',
+            'type' => 'office',
+            'code' => 'KP-0001'
         ]);
 
-        $adminUser2 = User::firstOrCreate(
-            ['email' => 'admin1@example.com'],
+        $storeProfile = BusinessLocation::create([
+            'name' => 'Toko Bandung',
+            'city' => 'Bandung',
+            'region' => 'Jawa Barat',
+            'phone' => '08892309239',
+            'type' => 'store',
+            'code' => 'TP-0001'
+        ]);
+
+        // Create a default admin user
+        $staffUser = User::firstOrCreate(
+            ['email' => 'staff1@gmail.com'],
             [
-                'name' => 'Admin Gudang 1',
+                'name' => 'Staff Name 1',
                 'password' => Hash::make('password'), // Change this in production!
                 'email_verified_at' => now(),
-                'warehouse_id' => $gudangProfile2->id
+                'business_location_id' => $officeProfile->id
             ]
         );
-        $adminUser2->assignRole('admin');
+        $staffUser2 = User::firstOrCreate(
+            ['email' => 'staff2@gmail.com'],
+            [
+                'name' => 'Staff Name 2',
+                'password' => Hash::make('password'), // Change this in production!
+                'email_verified_at' => now(),
+                'business_location_id' => $officeProfile->id
+            ]
+        );
+        $staffUser->assignRole('staff');
+        $staffUser2->assignRole('staff');
 
         $gudangUser = User::firstOrCreate(
-            ['email' => 'gudang1@example.com'],
+            ['email' => 'gudang1@gmail.com'],
             [
-                'name' => 'Gudang User 1',
+                'name' => 'Gudang Name 1',
                 'password' => Hash::make('password'), // Change this in production!
                 'email_verified_at' => now(),
-                'warehouse_id' => $gudangProfile2->id
-            ]
-        );
-
-        $gudangUser2 = User::firstOrCreate(
-            ['email' => 'gudang2@example.com'],
-            [
-                'name' => 'Gudang User 2',
-                'password' => Hash::make('password'), // Change this in production!
-                'email_verified_at' => now(),
-                'warehouse_id' => $gudangProfile2->id
+                'business_location_id' => $gudangProfile->id
             ]
         );
 
         $gudangUser->assignRole('gudang');
-        $gudangUser2->assignRole('gudang');
 
         // Create a default kasir user
         $kasirUser = User::firstOrCreate(
-            ['email' => 'kasir@example.com'],
+            ['email' => 'kasir1@example.com'],
             [
-                'name' => 'Kasir User',
+                'name' => 'Kasir Name 1',
                 'password' => Hash::make('password'), // Change this in production!
                 'email_verified_at' => now(),
+                'business_location_id' => $storeProfile->id
             ]
         );
         $kasirUser->assignRole('kasir');

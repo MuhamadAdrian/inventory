@@ -21,10 +21,10 @@ class UserController extends AppController
     {
         parent::__construct($request);
 
-        $this->middleware('can:view user')->only(['index']);
-        $this->middleware('can:create user')->only(['create', 'store']);
-        $this->middleware('can:edit user')->only(['edit', 'update']);
-        $this->middleware('can:delete user')->only(['destroy']);
+        $this->middleware('can:view account')->only(['index']);
+        $this->middleware('can:create account')->only(['create', 'store']);
+        $this->middleware('can:edit account')->only(['edit', 'update']);
+        $this->middleware('can:delete account')->only(['destroy']);
 
         $this->userService = $userService;
         $this->roleService = $roleService;

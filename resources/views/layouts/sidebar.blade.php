@@ -1,7 +1,7 @@
     <div class="sidebar sidebar-dark sidebar-fixed border-end" id="sidebar">
       <div class="sidebar-header border-bottom">
         <div class="sidebar-brand">
-          Alisha Admin
+          Alisha {{ ucfirst(auth()->user()->getRoleNames()->first())}}
         </div>
         <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close" onclick="coreui.Sidebar.getInstance(document.querySelector(&quot;#sidebar&quot;)).toggle()"></button>
       </div>
@@ -12,6 +12,15 @@
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-speedometer') }}"></use>
             </svg> Dashboard<span class="badge badge-sm bg-info ms-auto">NEW</span></a>
         </li>
+        @can('view business location')
+        <li class="nav-title">Location Management</li>
+        <li class="nav-item"><a class="nav-link" href="{{ route('business-locations.index') }}">
+            <svg class="nav-icon">
+              {{-- Use Laravel's asset() helper to point to the public path --}}
+              <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-location-pin') }}"></use>
+            </svg> Tempat Usaha</a>
+        </li>
+        @endcan
         <li class="nav-title">User Management</li>
         <li class="nav-item"><a class="nav-link" href="{{ route('users.index') }}">
             <svg class="nav-icon">
@@ -37,7 +46,7 @@
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
             </svg>Stock</a></li>
         @endcan
-        @can('stock request view')
+        @can('view stock request')
         <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('stock-transfers.index') }}">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>

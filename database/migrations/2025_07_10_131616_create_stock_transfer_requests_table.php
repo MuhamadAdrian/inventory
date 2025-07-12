@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->date('request_date')->default(now()); // Tanggal permintaan dibuat
             $table->date('desired_arrival_date')->nullable(); // Tanggal diinginkan barang sampai
-            $table->foreignId('sender_warehouse_id')->constrained('warehouses')->onDelete('cascade'); // Gudang pengirim
-            $table->foreignId('receiver_warehouse_id')->constrained('warehouses')->onDelete('cascade'); // Gudang penerima
+            $table->foreignId('sender_id')->constrained('business_locations')->onDelete('cascade');
+            $table->foreignId('receiver_id')->constrained('business_locations')->onDelete('cascade');
             $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending'); // Status: pending, processing, completed, cancelled
-            $table->text('notes')->nullable(); // Catatan tambahan
-            $table->morphs('created_by'); // Pengguna yang membuat permintaan (misal: Admin, Gudang)
+            $table->text('notes')->nullable();
+            $table->morphs('created_by');
             $table->timestamps();
         });
     }

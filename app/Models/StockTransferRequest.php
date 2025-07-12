@@ -15,8 +15,8 @@ class StockTransferRequest extends Model
     protected $fillable = [
         'request_date',
         'desired_arrival_date',
-        'sender_warehouse_id',
-        'receiver_warehouse_id',
+        'sender_id',
+        'receiver_id',
         'status',
         'notes',
         'created_by_type',
@@ -31,17 +31,17 @@ class StockTransferRequest extends Model
     /**
      * Dapatkan gudang pengirim.
      */
-    public function senderWarehouse(): BelongsTo
+    public function sender(): BelongsTo
     {
-        return $this->belongsTo(Warehouse::class, 'sender_warehouse_id');
+        return $this->belongsTo(BusinessLocation::class, 'sender_id');
     }
 
     /**
      * Dapatkan gudang penerima.
      */
-    public function receiverWarehouse(): BelongsTo
+    public function receiver(): BelongsTo
     {
-        return $this->belongsTo(Warehouse::class, 'receiver_warehouse_id');
+        return $this->belongsTo(BusinessLocation::class, 'receiver_id');
     }
 
     /**

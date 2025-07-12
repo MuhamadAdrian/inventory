@@ -21,7 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'warehouse_id', // Added warehouse_id to fillable
+        'phone',
+        'business_location_id',
     ];
 
     /**
@@ -48,10 +49,10 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the warehouse associated with the user.
+     * Get the business location associated with the user.
      */
-    public function warehouse()
+    public function businessLocation()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(BusinessLocation::class);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BusinessLocation\BusinessLocationController;
 use App\Http\Controllers\Admin\Stock\StockController;
 use App\Http\Controllers\Admin\Product\ProductController;
 use App\Http\Controllers\Admin\User\PermissionController;
@@ -47,7 +48,11 @@ Route::controller(StockController::class)->prefix('stock-transfers')->name('stoc
 });
 Route::resource('stock-transfers', StockController::class)->except(['edit', 'update', 'destroy']);
 
-Route::post('', [ProductController::class, 'processScanStock'])->name('products.adjust_stock');
-
-
-
+// Location Management
+Route::controller(BusinessLocationController::class)
+    ->prefix('business-locations')
+    ->name('business-locations.')
+    ->group(function() {
+        Route::get('data', 'data')->name('data');
+    });
+Route::resource('business-locations', BusinessLocationController::class)->except(['show']);

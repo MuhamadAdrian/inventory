@@ -2,7 +2,7 @@
   <a href="{{ route('stock-transfers.show', $request->id) }}" class='btn btn-sm btn-info rounded-md me-2' title='Lihat Detail'>
       <i class='bi bi-eye-fill'></i> Lihat
   </a>
-  @can('stock request process')
+  @can('approval stock request')
   @if($request->status === 'pending')
   <form action="{{ route('stock-transfers.process_transfer', $request->id) }}" method='POST' onsubmit='return confirm("Apakah Anda yakin ingin memproses transfer stok ini? Ini akan mengurangi stok dari gudang pengirim dan menambahkannya ke gudang penerima");' style='display:inline-block;'>
       @csrf

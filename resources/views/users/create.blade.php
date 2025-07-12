@@ -16,7 +16,7 @@
                 {{-- Include the shared form partial --}}
                 @include('users.template.form', ['roles' => $roles])
 
-                <button type="submit" class="btn btn-primary rounded-md shadow-sm">Create User</button>
+                <button type="submit" class="btn btn-primary rounded-md shadow-sm">create account</button>
             </form>
         </div>
     </div>

@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class BusinessLocation extends Model
+{
+    protected $fillable = [
+        'name',
+        'code',
+        'city',
+        'region',
+        'phone',
+        'type', // warehouse, store, office
+    ];
+
+    /**
+     * Get the products associated with the business location.
+     */
+    public function products()
+    {
+        return $this->hasMany(ProductBusinessLocation::class);
+    }
+
+    /**
+     * Get the users associated with the business location.
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+}

@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('warehouse_product_stocks', function (Blueprint $table) {
+        Schema::create('product_business_locations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('warehouse_id')->constrained()->onDelete('cascade');
+            $table->foreignId('business_location_id')->constrained('business_locations')->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('stock')->default(0);
             $table->timestamps();
-            $table->softDeletes();
-
-            // Ensure unique combination of product and warehouse
-            $table->unique(['warehouse_id', 'product_id']);
         });
     }
 
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('warehouse_product_stocks');
+        Schema::dropIfExists('product_business_locations');
     }
 };

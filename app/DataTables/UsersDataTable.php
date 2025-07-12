@@ -125,7 +125,7 @@ class UsersDataTable extends DataTable
                 ->width(60)
                 ->addClass('text-center')
                 ->attributes([
-                    'style' => $user->can(['edit user']) || $user->can(['delete user'])  ? 'display: block;' : 'display: none;'
+                    'style' => $user->can(['edit account']) || $user->can(['delete account'])  ? 'display: block;' : 'display: none;'
                 ])
 
         ];
