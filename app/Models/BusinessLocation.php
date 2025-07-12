@@ -10,7 +10,7 @@ class BusinessLocation extends Model
         'name',
         'code',
         'city',
-        'region',
+        'area',
         'phone',
         'type', // warehouse, store, office
     ];

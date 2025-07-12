@@ -123,9 +123,10 @@ class ProductController extends AppController
 
         // Generate the barcode image (base64 PNG)
         $dns1d = new DNS1D();
-        $barcodeBase64 = 'data:image/png;base64,' . $dns1d->getBarcodePNG($product->item_code, 'UPCA', 4, 100); // Larger barcode for print
+        $barcodeBase64 = 'data:image/png;base64,' . $dns1d->getBarcodePNG($product->item_code, 'C128', 4, 100); // Larger barcode for print
+        $barcodeCount = request()->input('count', 1);
 
-        return view('products.template.print_barcode', compact('product', 'barcodeBase64'));
+        return view('products.template.print_barcode', compact('product', 'barcodeBase64', 'barcodeCount'));
     }
 
     /**

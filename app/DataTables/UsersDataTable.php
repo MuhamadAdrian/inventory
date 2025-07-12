@@ -34,6 +34,9 @@ class UsersDataTable extends DataTable
                     return '<span class="badge bg-primary text-white rounded-pill text-capitalize">'.$role->name.'</span>';
                 })->implode('<br>');
             })
+            ->addColumn('location', function (User $user) {
+                return $user->businessLocation ? $user->businessLocation->city . ' | ' . $user->businessLocation->area : '-';
+            })
             ->addIndexColumn()
             ->rawColumns(['roles', 'action'])
             ->escapeColumns()
@@ -70,9 +73,12 @@ class UsersDataTable extends DataTable
                 $query->whereIn('name', $exclude);
             });
         
-        if (auth()->user()->warehouse){
-            $query->where('warehouse_id', auth()->user()->warehouse->id);
-        }
+        // if (auth()->user()->businessLocation){
+        //     $query->whereHas('businessLocation', function ($query) {
+        //         $query->where('area', auth()->user()->businessLocation->area)
+        //             ->where('city', auth()->user()->businessLocation->city);
+        //     });
+        // }
 
         return $query;
     }
@@ -88,14 +94,17 @@ class UsersDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->selectStyleSingle()
-            ->buttons([
-                Button::make('excel'),
-                Button::make('csv'),
-                Button::make('pdf'),
-                Button::make('print'),
-                Button::make('reset'),
-                Button::make('reload')
+            ->parameters([
+                'buttons' => ['excel'],
             ])
+            // ->buttons([
+            //     Button::make('excel'),
+            //     Button::make('csv'),
+            //     Button::make('pdf'),
+            //     Button::make('print'),
+            //     Button::make('reset'),
+            //     Button::make('reload')
+            // ])
             ->serverSide(true);
     }
 
@@ -115,6 +124,8 @@ class UsersDataTable extends DataTable
                 ->addClass('text-center'),
             Column::make('name'),
             Column::make('email'),
+            Column::make('location')
+                ->orderable(false),
             Column::make('roles')
                 ->title('Roles'),
                 // ->searchable(false)

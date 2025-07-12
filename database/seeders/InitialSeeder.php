@@ -92,7 +92,7 @@ class InitialSeeder extends Seeder
         $gudangProfile = BusinessLocation::create([
             'name' => 'Gudang Bandung',
             'city' => 'Bandung',
-            'region' => 'Jawa Barat',
+            'area' => 'Cibiru',
             'phone' => '08892309239',
             'type' => 'warehouse',
             'code' => 'GP-0001'
@@ -101,7 +101,7 @@ class InitialSeeder extends Seeder
         $officeProfile = BusinessLocation::create([
             'name' => 'Kantor Bandung',
             'city' => 'Bandung',
-            'region' => 'Jawa Barat',
+            'area' => 'Cibiru',
             'phone' => '08892309239',
             'type' => 'office',
             'code' => 'KP-0001'
@@ -110,7 +110,7 @@ class InitialSeeder extends Seeder
         $storeProfile = BusinessLocation::create([
             'name' => 'Toko Bandung',
             'city' => 'Bandung',
-            'region' => 'Jawa Barat',
+            'area' => 'Cibiru',
             'phone' => '08892309239',
             'type' => 'store',
             'code' => 'TP-0001'

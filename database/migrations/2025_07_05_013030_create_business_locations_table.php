@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('code', 10)->unique();
             $table->string('city')->nullable();
-            $table->string('region')->nullable();
+            $table->string('area')->nullable();
             $table->string('phone')->nullable();
             $table->enum('type', ['warehouse', 'store', 'office'])->default('store');
             $table->timestamps();

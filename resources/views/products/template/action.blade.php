@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-center">
     @can('print barcode')
-    <a href="{{ route('products.print_barcode', $id) }}" class="btn btn-sm btn-primary rounded-3 me-2 text-white" target='_blank' title="Print Barcode">
+    <a href="{{ route('products.print_barcode', ['product' => $id, 'count' => 3]) }}" class="btn btn-sm btn-primary rounded-3 me-2 text-white" target='_blank' title="Print Barcode">
         <i class="bi bi-printer-fill"></i>
     </a>
     @endcan

@@ -44,6 +44,12 @@ class Product extends Model
         ];
     }
 
+    // ================== Accessors =====================
+    protected function getFormattedPriceAttribute($value)
+    {
+        return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
     // ================== RELATION =====================
 
     /**

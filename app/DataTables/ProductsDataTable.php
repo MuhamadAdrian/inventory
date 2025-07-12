@@ -37,6 +37,9 @@ class ProductsDataTable extends DataTable
             ->editColumn('stock', function (Product $product) {
                 return $product->stock ?? '0';
             })
+            ->addColumn('formatted_price', function (Product $product) {
+                return $product->formatted_price; // Assuming you have a formatted_price accessor
+            })
             ->addIndexColumn()
             ->rawColumns(['action', 'barcode'])
             ->setRowId('id');
@@ -103,7 +106,11 @@ class ProductsDataTable extends DataTable
                 ->orderable(false)
                 ->addClass('text-start'),
             Column::make('name'),
-            Column::make('price'),
+            Column::make('formatted_price')
+                ->title('Price')
+                ->searchable(false)
+                ->orderable(false)
+                ->addClass('text-end'),
             Column::make('stock')
                 ->title('Stock'),
             Column::computed('action')
