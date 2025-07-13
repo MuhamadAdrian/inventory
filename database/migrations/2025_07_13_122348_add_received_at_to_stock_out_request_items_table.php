@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stock_out_request_items', function (Blueprint $table) {
-            $table->string('qr_scan_url')->nullable()->after('status');
+            $table->timestamp('received_at')->nullable()->after('status')->comment('Timestamp when the stock out request item was received');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('stock_out_request_items', function (Blueprint $table) {
-            $table->dropColumn('qr_scan_url');
+            $table->dropColumn('received_at');
         });
     }
 };

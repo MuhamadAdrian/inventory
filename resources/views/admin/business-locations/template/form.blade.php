@@ -27,9 +27,9 @@
 </div>
 
 <div class="mb-3">
-    <label for="region" class="form-label">{{ __('Wilayah') }}</label>
-    <input type="text" class="form-control rounded-md @error('region') is-invalid @enderror" id="region" name="region" value="{{ old('region', $isEdit ? $businessLocation->region : '') }}" required>
-    @error('region')
+    <label for="area" class="form-label">{{ __('Area') }}</label>
+    <input type="text" class="form-control rounded-md @error('area') is-invalid @enderror" id="area" name="area" value="{{ old('area', $isEdit ? $businessLocation->area : '') }}" required>
+    @error('area')
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
 </div>

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin\Stock;
 
 use App\Http\Controllers\Admin\AppController;
+use App\Http\Requests\StockInStoreRequest;
 use App\Http\Requests\StockOutRequestRequest;
 use App\Models\Product;
 use App\Models\StockOutRequest;
+use App\Models\StockOutRequestItem;
 use App\Services\BusinessLocation\BusinessLocationService;
 use App\Services\Product\ProductService;
 use App\Services\Stock\StockOutRequestService;
@@ -147,7 +149,7 @@ class StockController extends AppController
         $stockOutRequest->items->each(function ($item) use ($stockOutRequest, $dns2d) {
             $item->qr_scan_url = 'data:image/png;base64,' .
                 $dns2d->getBarcodePNG(
-                    route('stock-out-requests.item.scan', [
+                    route('stock-out-requests.stock_in_confirmation_page', [
                         'stock_out_request' => $stockOutRequest->id,
                         'item_id' => $item->id
                     ]),
@@ -179,7 +181,7 @@ class StockController extends AppController
     {
         try {
             $this->stockOutRequestService->processTransfer($id);
-            return redirect()->route('stock_out_requests.index')->with('success', 'Permintaan stok keluar berhasil diproses.');
+            return redirect()->back()->with('success', 'Permintaan stok keluar berhasil diproses.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Gagal memproses permintaan stok keluar: ' . $e->getMessage());
         }
@@ -251,7 +253,7 @@ class StockController extends AppController
             $stockOutRequest->items->each(function ($item) use ($stockOutRequest, $dns2d) {
                 $item->qr_scan_url = 'data:image/png;base64,' .
                     $dns2d->getBarcodePNG(
-                        route('stock-out-requests.item.scan', [
+                        route('stock-out-requests.stock_in_confirmation_page', [
                             'stock_out_request' => $stockOutRequest->id,
                             'item_id' => $item->id
                         ]),
@@ -264,6 +266,47 @@ class StockController extends AppController
             return view('admin.stock-out-requests.template.print', compact('stockOutRequest'));
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Gagal membuat dokumen: ' . $e->getMessage());
+        }
+    }
+
+    public function stockInConfirmationPage(int $stockOutRequestId, int $itemId)
+    {
+        config([
+            'site.header' => 'Konfirmasi Stok Masuk',
+            'site.breadcrumbs' => [
+                ['name' => 'Stock Out Request', 'url' => route('stock-out-requests.index')],
+                ['name' => 'Konfirmasi Stok Masuk', 'url' => route('stock-out-requests.show', $stockOutRequestId)],
+            ]
+        ]);
+
+        try {
+
+            $item = StockOutRequestItem::where('id', $itemId)
+                ->where('stock_out_request_id', $stockOutRequestId)
+                ->firstOrFail();
+
+            if ($item->status !== 'transferred') {
+                abort(404, 'Item tidak ditemukan atau tidak dalam status yang benar untuk konfirmasi stok masuk.');
+            }
+
+            return view('admin.stock-in.template.proceed', compact('item'));
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mendapatkan informasi : ' . $e->getMessage());
+        }
+    }
+
+    public function stockInStoreProceed(StockInStoreRequest $request, int $stockOutRequestItemId)
+    {
+        try {
+            if ($request->input('quantity') <= 0) {
+                return redirect()->back()->with('error', 'Jumlah stok yang dimasukkan harus lebih dari nol.');
+            }
+
+            $this->stockOutRequestService->inputProductToStore($stockOutRequestItemId, $request->input('quantity'));
+
+            return redirect()->route('products.store.index')->with('success', 'Produk berhasil diperbarui');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Gagal input produk : ' . $e->getMessage());
         }
     }
 }

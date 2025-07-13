@@ -12,6 +12,21 @@
     <div class="wrapper d-flex flex-column min-vh-100">
       @include('layouts.header')
       <div class="body flex-grow-1">
+        <div class="container mt-4">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show rounded-md shadow-sm" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+    
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show rounded-md shadow-sm" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+        </div>
         @yield('content')
       </div>
       @include('layouts.footer')

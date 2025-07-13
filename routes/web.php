@@ -3,6 +3,9 @@
 use App\Http\Controllers\Admin\BusinessLocation\BusinessLocationController;
 use App\Http\Controllers\Admin\Stock\StockController;
 use App\Http\Controllers\Admin\Product\ProductController;
+use App\Http\Controllers\Admin\Product\ProductStoreController;
+use App\Http\Controllers\Admin\Stock\StockInController;
+use App\Http\Controllers\Admin\Stock\StockOutController;
 use App\Http\Controllers\Admin\User\PermissionController;
 use App\Http\Controllers\Admin\User\RoleController;
 use App\Http\Controllers\Admin\User\UserController;
@@ -31,6 +34,14 @@ Route::controller(ProductController::class)->prefix('products')->name('products.
     Route::get('gudang/scan-barcode', 'showScanStockForm')->name('scan_barcode');
     Route::post('update-stock', 'updateStock')->name('update_stock');
     Route::get('{product}/print-barcode', 'printBarcode')->name('print_barcode');
+
+    Route::controller(ProductStoreController::class)
+        ->prefix('sotre')
+        ->name('store.')
+        ->group(function() {
+            Route::get('data', 'data')->name('data');
+        });
+    Route::resource('store', ProductStoreController::class);
 });
 Route::resource('products', ProductController::class)->except(['show']);
 
@@ -42,9 +53,14 @@ Route::controller(StockController::class)->prefix('stock-out-requests')->name('s
     Route::put('cancel/{stock_out_request}', 'cancelTransfer')->name('cancel');
     Route::post('{stock_out_request}/print', 'printStockOutRequest')->name('print');
     Route::post('{stock_out_request}/send', 'sendStockOutRequest')->name('send');
-    Route::post('{stock_out_request}/scan/{item_id}', 'scanStockOutItem')->name('item.scan');
+    Route::get('{stock_out_request}/scan/{item_id}', 'stockInConfirmationPage')->name('stock_in_confirmation_page');
+    Route::post('{stock_out_request_item}/stock-in-store', 'stockInStoreProceed')->name('stock-in-store-proceed');
 });
 Route::resource('stock-out-requests', StockController::class)->except(['edit', 'update', 'destroy']);
+
+Route::resource('stock-in', StockInController::class);
+
+Route::resource('stock-out', StockOutController::class);
 
 // Location Management
 Route::controller(BusinessLocationController::class)

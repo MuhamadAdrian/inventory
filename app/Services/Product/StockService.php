@@ -3,6 +3,7 @@
 namespace App\Services\Product;
 
 use App\Http\Requests\UpdateStockRequest;
+use App\Models\BusinessLocation;
 use App\Models\ProductStock;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +36,11 @@ class StockService
 
       $newStockTotal = $previousStockTotal + $request->stock;
 
+      $businessLocation = BusinessLocation::where('type', 'warehouse')
+        ->where('city', auth()->user()->businessLocation->city)
+        ->where('area', auth()->user()->businessLocation->area)
+        ->first();
+
       $productStock = $this->productStockQuery()
         ->create([
           'product_id'  => $request->product_id,
@@ -42,7 +48,7 @@ class StockService
           'causer_type' => $userType ?? User::class,
           'causer_id'   => $userId ?? Auth::id(),
           'stock'       => $newStockTotal,
-          'business_location_id' => $request->business_location_id ?? null,
+          'business_location_id' => $businessLocation ? $businessLocation->id : null,
         ]);
 
       return $productStock->product()->update([

@@ -73,12 +73,12 @@ class UsersDataTable extends DataTable
                 $query->whereIn('name', $exclude);
             });
         
-        // if (auth()->user()->businessLocation){
-        //     $query->whereHas('businessLocation', function ($query) {
-        //         $query->where('area', auth()->user()->businessLocation->area)
-        //             ->where('city', auth()->user()->businessLocation->city);
-        //     });
-        // }
+        if (auth()->user()->businessLocation){
+            $query->whereHas('businessLocation', function ($query) {
+                $query->where('area', auth()->user()->businessLocation->area)
+                    ->where('city', auth()->user()->businessLocation->city);
+            });
+        }
 
         return $query;
     }

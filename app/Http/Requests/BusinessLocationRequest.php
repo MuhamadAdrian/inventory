@@ -26,7 +26,7 @@ class BusinessLocationRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', Rule::unique('business_locations')->ignore($this->route('business_location'))],
             'code' => ['required', 'string', 'max:50', Rule::unique('business_locations')->ignore($this->route('business_location'))],
             'city' => ['required', 'string', 'max:100'],
-            'region' => ['required', 'string', 'max:100'],
+            'area' => ['required', 'string', 'max:100'],
             'phone' => ['nullable', 'string', 'max:20'],
             'type' => ['required', 'string', 'in:warehouse,store,office'],
         ];

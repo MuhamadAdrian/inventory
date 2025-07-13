@@ -15,10 +15,12 @@ class StockOutRequestItem extends Model
         'product_id',
         'quantity',
         'status',
+        'received_at'
     ];
 
     protected $casts = [
         'quantity' => 'integer',
+        'received_at' => 'datetime',
     ];
 
     /**

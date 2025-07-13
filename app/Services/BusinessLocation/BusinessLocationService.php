@@ -27,7 +27,7 @@ class BusinessLocationService {
       'name' => $request->name,
       'code' => $request->code,
       'city' => $request->city,
-      'region' => $request->region,
+      'area' => $request->area,
       'phone' => $request->phone,
       'type' => $request->type
     ]);
@@ -40,7 +40,7 @@ class BusinessLocationService {
       'name' => $request->name,
       'code' => $request->code,
       'city' => $request->city,
-      'region' => $request->region,
+      'area' => $request->area,
       'phone' => $request->phone,
       'type' => $request->type
     ]);

@@ -41,7 +41,7 @@
         </li>
         @endcan
         @can('view store product')
-        <li class="nav-item"><a class="nav-link" href="{{ route('products.index') }}">
+        <li class="nav-item"><a class="nav-link" href="{{ route('products.store.index') }}">
           <svg class="nav-icon">
             <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
           </svg>Produk Toko</a>

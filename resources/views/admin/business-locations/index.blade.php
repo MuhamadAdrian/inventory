@@ -11,20 +11,6 @@
         @endcan
     </div>
 
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show rounded-md shadow-sm" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger alert-dismissible fade show rounded-md shadow-sm" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
     <div class="card shadow-sm rounded-md">
         <div class="card-body">
             <div class="table-responsive">

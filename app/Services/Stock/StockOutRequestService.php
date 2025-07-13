@@ -3,7 +3,10 @@
 namespace App\Services\Stock;
 
 use App\Models\Product;
+use App\Models\ProductBusinessLocation;
+use App\Models\ProductStock;
 use App\Models\StockOutRequest;
+use App\Models\StockOutRequestItem;
 use App\Services\Product\StockService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +15,12 @@ use Exception;
 class StockOutRequestService
 {
     protected $modelStockOutRequestRequest;
+    protected $stockService;
 
-    public function __construct(StockOutRequest $modelStockOutRequestRequest)
+    public function __construct(StockOutRequest $modelStockOutRequestRequest, StockService $stockService)
     {
         $this->modelStockOutRequestRequest = $modelStockOutRequestRequest;
+        $this->stockService = $stockService;
     }
 
     public function stockOutRequestQuery()
@@ -172,6 +177,99 @@ class StockOutRequestService
                     $stockOutRequest->update(['document_printed_at' => now()]);
                 }
             }
+        });
+    }
+
+    public function inputProductToStore(int $stockOutRequestItemId, int $quantity)
+    {
+        DB::transaction(function() use ($stockOutRequestItemId, $quantity) {
+            $item = StockOutRequestItem::findOrFail($stockOutRequestItemId);
+
+            if ($item->status !== 'transferred') {
+                throw new Exception("Item tidak dalam status yang benar untuk konfirmasi stok masuk.");
+            }
+
+            $item->update([
+                'status' => 'received',
+                'received_at' => now()
+            ]);
+
+            $itemReceivedCount = StockOutRequestItem::where('stock_out_request_id', $item->stock_out_request_id)
+                ->where('status', 'received')
+                ->count();
+
+            $totalItemsCount = StockOutRequestItem::where('stock_out_request_id', $item->stock_out_request_id)->count();
+
+            if ($itemReceivedCount === $totalItemsCount) {
+                $item->stockOutRequest()->update(['status' => 'completed']);
+            }
+
+            $stockOutRequest = $item->stockOutRequest;
+
+            // input product to store or update stock
+            $productStore = ProductBusinessLocation::updateOrCreate(
+                [
+                    'product_id' => $item->product->id,
+                    'business_location_id' => auth()->user()->businessLocation->id,
+                ],
+                [
+                    'stock' => DB::raw("stock + {$quantity}")
+                ]
+            );
+
+            // create stock in history for receiver
+            $previousProductStockReceiver = $this->stockService->productStockQuery()
+                ->where('product_id', $item->product->id)
+                ->where('business_location_id', $stockOutRequest->receiver->id)
+                ->latest('created_at')
+                ->first();
+
+            $previousStockTotalReceiver = 0;
+            if ($previousProductStockReceiver) {
+                $previousStockTotalReceiver = $previousProductStockReceiver->stock;
+            }
+
+            $newStockTotalReceiver = $previousStockTotalReceiver + $item->quantity;
+
+            $this->stockService->productStockQuery()
+                ->create([
+                    'product_id' => $item->product->id,
+                    'business_location_id' => $stockOutRequest->receiver->id,
+                    'quantity' => $item->quantity,
+                    'causer_type' => get_class(Auth::user()),
+                    'causer_id' => Auth::id(),
+                    'stock' => $newStockTotalReceiver
+                ]);
+
+            // create stock out history for sender
+            $previousProductStockSender = $this->stockService->productStockQuery()
+                ->where('product_id', $item->product->id)
+                ->where('business_location_id', $stockOutRequest->sender->id)
+                ->latest('created_at')
+                ->first();
+
+            $previousStockTotalSender = 0;
+            if ($previousProductStockSender) {
+                $previousStockTotalSender = $previousProductStockSender->stock;
+            }
+
+            $newStockTotalSender = $previousStockTotalSender - $item->quantity;
+
+            $productStockSender = $this->stockService->productStockQuery()
+                ->create([
+                    'product_id' => $item->product->id,
+                    'business_location_id' => $stockOutRequest->sender->id,
+                    'quantity' => $item->quantity * -1,
+                    'causer_type' => get_class(Auth::user()),
+                    'causer_id' => $stockOutRequest->createdBy->id,
+                    'stock' => $newStockTotalSender
+                ]);
+
+            $productStockSender->product()->update([
+                'stock' => $productStockSender->stock
+            ]);
+
+            return $productStore;
         });
     }
 }
