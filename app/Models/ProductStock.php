@@ -50,6 +50,6 @@ class ProductStock extends Model
      */
     public function businessLocation(): BelongsTo
     {
-        return $this->belongsTo(BusinessLocation::class, 'business_location_id');
+        return $this->belongsTo(BusinessLocation::class);
     }
 }

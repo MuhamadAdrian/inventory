@@ -28,6 +28,6 @@ class ProductBusinessLocationService
       $query->with($with);
     }
 
-    return $query->get();
+    return $query;
   }
 }

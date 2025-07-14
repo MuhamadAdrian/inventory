@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BusinessLocation\BusinessLocationController;
 use App\Http\Controllers\Admin\Stock\StockController;
 use App\Http\Controllers\Admin\Product\ProductController;
 use App\Http\Controllers\Admin\Product\ProductStoreController;
+use App\Http\Controllers\Admin\Stock\StockHistoryController;
 use App\Http\Controllers\Admin\Stock\StockInController;
 use App\Http\Controllers\Admin\Stock\StockOutController;
 use App\Http\Controllers\Admin\User\PermissionController;
@@ -61,6 +62,16 @@ Route::resource('stock-out-requests', StockController::class)->except(['edit', '
 Route::resource('stock-in', StockInController::class);
 
 Route::resource('stock-out', StockOutController::class);
+
+Route::controller(StockHistoryController::class)
+    ->prefix('stock-history')
+    ->name('stock-history.')
+    ->group(function() {
+        Route::get('/', 'index')->name('index');
+        Route::get('{stock-history}', 'show')->name('show');
+        Route::get('/data', 'data')->name('data');
+    });
+
 
 // Location Management
 Route::controller(BusinessLocationController::class)

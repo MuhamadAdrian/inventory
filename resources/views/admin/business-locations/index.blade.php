@@ -13,6 +13,17 @@
 
     <div class="card shadow-sm rounded-md">
         <div class="card-body">
+            <div class="d-flex gap-2">
+                <div class="mb-3">
+                    <label for="type-filter" class="form-label">Tipe:</label>
+                    <select class="form-select rounded-md" id="type-filter">
+                        <option value="">-- Semua --</option>
+                        <option value="online">Online</option>
+                        <option value="warehouse">Gudang</option>
+                        <option value="store">Toko</option>
+                    </select>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover table-striped mb-0" id="business-locations-table">
                     <thead>
@@ -42,10 +53,15 @@
 
 <script>
     $(function() {
-        $('#business-locations-table').DataTable({
+        var businessLocationsTable = $('#business-locations-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{!! route('business-locations.data') !!}',
+            ajax: {
+                url: '{!! route('business-locations.data') !!}',
+                data: function (d) {
+                    d.type_filter = $('#type-filter').val();
+                }
+            },
             columns: [
                 { data: 'id', name: 'id' },
                 { data: 'name', name: 'name' },
@@ -58,6 +74,11 @@
             ],
             order: [[0, 'asc']]
         });
+
+        $('#type-filter').on('change', function() {
+            businessLocationsTable.draw();
+        });
     });
+
 </script>
 @endpush

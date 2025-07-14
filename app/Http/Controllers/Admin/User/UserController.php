@@ -43,9 +43,10 @@ class UserController extends AppController
     public function index(UsersDataTable $dataTable)
     {
         $currentRoles = auth()->user()->roles->pluck('name')->toArray();
+        $businessLocations = BusinessLocation::all();
         return $dataTable
             ->setCurrentRoles($currentRoles)
-            ->render('users.index');
+            ->render('users.index', compact('businessLocations'));
 
     }
 

@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
+use Illuminate\Http\Request;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
@@ -19,7 +20,6 @@ class UsersDataTable extends DataTable
         $this->currentRoles = $roles;
         return $this;
     }
-
     /**
      * Build the DataTable class.
      *
@@ -48,7 +48,7 @@ class UsersDataTable extends DataTable
      *
      * @return QueryBuilder<User>
      */
-    public function query(User $model): QueryBuilder
+    public function query(User $model, Request $request): QueryBuilder
     {
         $exclusions = [
             'owner'  => [],
@@ -78,6 +78,12 @@ class UsersDataTable extends DataTable
                 $query->where('area', auth()->user()->businessLocation->area)
                     ->where('city', auth()->user()->businessLocation->city);
             });
+        }
+
+        if ($request->filled('location_filter') && $request->input('location_filter') !== '') {
+            $locationFilter = $request->input('location_filter');
+
+            $query->where('business_location_id', $locationFilter);
         }
 
         return $query;

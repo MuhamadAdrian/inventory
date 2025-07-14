@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Product;
 
 use App\Http\Controllers\Admin\AppController;
+use App\Models\BusinessLocation;
 use App\Models\ProductBusinessLocation;
 use App\Services\Product\ProductBusinessLocationService;
 use App\Services\Product\ProductService;
@@ -36,12 +37,26 @@ class ProductStoreController extends AppController
      */
     public function index()
     {
-        return view('admin.product-store.index');
+        $stores = BusinessLocation::where('type', 'store')->get();
+        $productStores = $this->productBusinessLocationService->productBusinessLocationQuery()
+            ->with('product')
+            ->get()
+            ->unique('product_id')
+            ->values();
+        return view('admin.product-store.index', compact('stores', 'productStores'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $productStores = $this->productBusinessLocationService->getListProducts(['product']);
+
+        if ($request->filled('store_filter') && $request->input('store_filter') !== '') {
+            $productStores->where('business_location_id', $request->input('store_filter'));
+        }
+
+        if ($request->filled('product_filter') && $request->input('product_filter') !== '') {
+            $productStores->where('product_id', $request->input('product_filter'));
+        }
 
         return DataTables::of($productStores)
             ->addColumn('action', function (ProductBusinessLocation $productBusinessLocation) {

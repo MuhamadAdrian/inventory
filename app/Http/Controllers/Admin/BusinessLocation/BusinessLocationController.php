@@ -38,9 +38,13 @@ class BusinessLocationController extends AppController
         return view('admin.business-locations.index');
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $businessLocations = $this->businessLocationService->businessLocationQuery();
+
+        if ($request->filled('type_filter') && $request->input('type_filter') !== '') {
+            $businessLocations->where('type', $request->input('type_filter'));
+        }
 
         return DataTables::of($businessLocations)
             ->addColumn('action', function ($location) {

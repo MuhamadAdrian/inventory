@@ -62,7 +62,7 @@
             </svg>Permintaan Stok Keluar</a></li>
         @endcan
         @can('view product stock history')
-        <li class="nav-item"><a class="nav-link text-truncate" href="#">
+        <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('stock-history.index') }}">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
             </svg>Histori Stok Produk</a></li>
