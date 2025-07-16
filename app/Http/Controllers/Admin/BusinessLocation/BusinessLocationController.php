@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AppController;
 use App\Http\Requests\BusinessLocationRequest;
 use App\Models\BusinessLocation;
 use App\Services\BusinessLocation\BusinessLocationService;
+use Exception;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -73,7 +74,7 @@ class BusinessLocationController extends AppController
             $this->businessLocationService->create($request);
             return redirect()->route('business-locations.index')->with('success', __('Lokasi berhasil dibuat.'));
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => __('Gagal membuat lokasi: ') . $e->getMessage()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal membuat lokasi: ' . $e->getMessage());
         }
     }
 
@@ -95,7 +96,7 @@ class BusinessLocationController extends AppController
             $this->businessLocationService->update($id, $request);
             return redirect()->route('business-locations.index')->with('success', __('Lokasi berhasil diperbarui.'));
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => __('Gagal memperbarui lokasi: ') . $e->getMessage()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui lokasi: ' . $e->getMessage());
         }
     }
 
@@ -105,10 +106,18 @@ class BusinessLocationController extends AppController
     public function destroy(int $id)
     {
         try {
-            $this->businessLocationService->delete($id);
+            $businessLocation = $this->businessLocationService
+                ->businessLocationQuery()
+                ->find($id);
+
+            if ($businessLocation->productStocks) {
+                throw new Exception('Tidak dapat menghapus lokasi', 400);
+            }
+
+            $businessLocation->delete();
             return redirect()->route('business-locations.index')->with('success', __('Lokasi berhasil dihapus.'));
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => __('Gagal menghapus lokasi: ') . $e->getMessage()]);
+        } catch (Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal menghapus lokasi: ' . $e->getMessage());
         }
     }
 }

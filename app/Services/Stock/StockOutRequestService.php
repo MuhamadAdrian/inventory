@@ -7,20 +7,24 @@ use App\Models\ProductBusinessLocation;
 use App\Models\ProductStock;
 use App\Models\StockOutRequest;
 use App\Models\StockOutRequestItem;
+use App\Services\Product\ProductBusinessLocationService;
 use App\Services\Product\StockService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class StockOutRequestService
 {
     protected $modelStockOutRequestRequest;
     protected $stockService;
+    protected $productBusinessLocationService;
 
-    public function __construct(StockOutRequest $modelStockOutRequestRequest, StockService $stockService)
+    public function __construct(StockOutRequest $modelStockOutRequestRequest, StockService $stockService, ProductBusinessLocationService $productBusinessLocationService)
     {
         $this->modelStockOutRequestRequest = $modelStockOutRequestRequest;
         $this->stockService = $stockService;
+        $this->productBusinessLocationService = $productBusinessLocationService;
     }
 
     public function stockOutRequestQuery()
@@ -85,10 +89,10 @@ class StockOutRequestService
           ->select('id', 'request_date', 'desired_arrival_date', 'sender_id', 'receiver_id', 'status', 'created_at', 'created_by_type', 'created_by_id');
 
         if (!in_array(auth()->user()->getRoleNames()[0], ['staff', 'owner'])) {
-            $stockOutRequest->where('created_by_id', Auth::id());
+            // $stockOutRequest->where('created_by_id', Auth::id());
         }
 
-        if (auth()->user()->getRoleNames()[0] === 'staff') {
+        if (in_array(auth()->user()->getRoleNames()[0], ['staff', 'gudang'])) {
             $stockOutRequest->whereHas('sender', function ($query) {
                 $query->where('area', Auth::user()->businessLocation->area);
             });
@@ -116,7 +120,9 @@ class StockOutRequestService
      */
     public function getProductsForSelectionDataTables()
     {
-        return Product::whereNotNull('item_code')->select('id', 'name', 'item_code', 'price');
+        return ProductBusinessLocation::with(['product'])->whereHas('product', function ($product) {
+            $product->whereNotNull('item_code')->select('id', 'name', 'item_code', 'price');
+        });
     }
 
     /**
@@ -217,59 +223,70 @@ class StockOutRequestService
                 ]
             );
 
+            Log::info('Produk Store : ' . $productStore);
+
+            
+            $productBusinessLocation = $this->productBusinessLocationService->getProductLocation($item->product->id, $stockOutRequest->receiver->id);
+            
             // create stock in history for receiver
             $previousProductStockReceiver = $this->stockService->productStockQuery()
-                ->where('product_id', $item->product->id)
-                ->where('business_location_id', $stockOutRequest->receiver->id)
-                ->latest('created_at')
-                ->first();
-
+            ->where('product_business_location_id', $productBusinessLocation->id)
+            ->where('business_location_id', $stockOutRequest->receiver->id)
+            ->latest('created_at')
+            ->first();
+            
             $previousStockTotalReceiver = 0;
             if ($previousProductStockReceiver) {
                 $previousStockTotalReceiver = $previousProductStockReceiver->stock;
             }
-
+            
             $newStockTotalReceiver = $previousStockTotalReceiver + $item->quantity;
-
+            
             $this->stockService->productStockQuery()
                 ->create([
-                    'product_id' => $item->product->id,
+                    'product_business_location_id' => $productBusinessLocation->id,
                     'business_location_id' => $stockOutRequest->receiver->id,
                     'quantity' => $item->quantity,
                     'causer_type' => get_class(Auth::user()),
                     'causer_id' => Auth::id(),
                     'stock' => $newStockTotalReceiver
                 ]);
+                
+            $productBusinessLocation = $this->productBusinessLocationService->getProductLocation($item->product->id, $stockOutRequest->sender->id);
 
-            // create stock out history for sender
+            dd($productBusinessLocation);
+                
+                // create stock out history for sender
             $previousProductStockSender = $this->stockService->productStockQuery()
-                ->where('product_id', $item->product->id)
+                ->where('product_business_location_id', $productBusinessLocation->id)
                 ->where('business_location_id', $stockOutRequest->sender->id)
                 ->latest('created_at')
                 ->first();
-
+                
+                
+                
             $previousStockTotalSender = 0;
             if ($previousProductStockSender) {
                 $previousStockTotalSender = $previousProductStockSender->stock;
             }
-
+            
             $newStockTotalSender = $previousStockTotalSender - $item->quantity;
-
+            
             $productStockSender = $this->stockService->productStockQuery()
-                ->create([
-                    'product_id' => $item->product->id,
-                    'business_location_id' => $stockOutRequest->sender->id,
-                    'quantity' => $item->quantity * -1,
-                    'causer_type' => get_class(Auth::user()),
-                    'causer_id' => $stockOutRequest->createdBy->id,
-                    'stock' => $newStockTotalSender
-                ]);
-
-            $productStockSender->product()->update([
+            ->create([
+                'product_business_location_id' => $productBusinessLocation->id,
+                'business_location_id' => $stockOutRequest->sender->id,
+                'quantity' => $item->quantity * -1,
+                'causer_type' => get_class(Auth::user()),
+                'causer_id' => $stockOutRequest->createdBy->id,
+                'stock' => $newStockTotalSender
+            ]);
+            
+            $productBusinessLocation->update([
                 'stock' => $productStockSender->stock
             ]);
 
-            return $productStore;
+            return $productBusinessLocation;
         });
     }
 }

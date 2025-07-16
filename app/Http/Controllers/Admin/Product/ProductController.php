@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateStockRequest;
 use App\Models\Product;
 use App\Services\Product\ProductService;
 use App\Services\Product\StockService;
+use Exception;
 use Illuminate\Http\Request;
 use Milon\Barcode\DNS1D;
 
@@ -106,9 +107,13 @@ class ProductController extends AppController
      */
     public function destroy(Product $product)
     {
-        $this->productService->deleteProduct($product);
+        try {
+            $this->productService->deleteProduct($product);
+            return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
+        } catch (Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal membuat permintaan transfer stok: ' . $e->getMessage());
+        }
 
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }
 
         /**
@@ -180,6 +185,6 @@ class ProductController extends AppController
     {
         $this->stockService->updateProductStock($request);
 
-        return redirect()->route('products.index')->with('success', 'Product stock has been updated !');
+        return redirect()->route('products.store.index')->with('success', 'Product stock has been updated !');
     }
 }

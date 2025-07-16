@@ -19,6 +19,10 @@ class ProductBusinessLocationService
   public function getListProducts($with = [])
   {
     $query = $this->productBusinessLocationQuery();
+
+    $query->whereHas('product', function($product) {
+      $product->where('deleted_at', null);
+    });
     
     if (auth()->user()->getRoleNames()[0] === 'kasir') {
       $query->where('business_location_id', auth()->user()->business_location_id);
@@ -29,5 +33,13 @@ class ProductBusinessLocationService
     }
 
     return $query;
+  }
+
+  public function getProductLocation($productId, $businessLocationId)
+  {
+    return $this->productBusinessLocationQuery()
+      ->where('product_id', $productId)
+      ->where('business_location_id', $businessLocationId)
+      ->first();
   }
 }

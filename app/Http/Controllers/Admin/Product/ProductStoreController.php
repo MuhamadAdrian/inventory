@@ -19,15 +19,15 @@ class ProductStoreController extends AppController
     {
         parent::__construct($productStore);
 
-        $this->middleware('can:view store product')->only(['index', 'data', 'show']);
+        $this->middleware('can:view product location')->only(['index', 'data', 'show']);
 
         $this->productBusinessLocationService = $productBusinessLocationService;
         $this->productService = $productService;
 
         config([
-            'site.header' => 'Produk Toko',
+            'site.header' => 'Produk',
             'site.breadcrumbs' => [
-                ['name' => 'Produk Toko', 'url' => route('products.store.index')],
+                ['name' => 'Produk', 'url' => route('products.store.index')],
             ]
         ]);
     }
@@ -37,9 +37,12 @@ class ProductStoreController extends AppController
      */
     public function index()
     {
-        $stores = BusinessLocation::where('type', 'store')->get();
+        $stores = BusinessLocation::all();
         $productStores = $this->productBusinessLocationService->productBusinessLocationQuery()
             ->with('product')
+            ->whereHas('product', function($product) {
+                $product->whereNull('deleted_at');
+            })
             ->get()
             ->unique('product_id')
             ->values();
@@ -58,9 +61,11 @@ class ProductStoreController extends AppController
             $productStores->where('product_id', $request->input('product_filter'));
         }
 
+        $productStores->get();
+
         return DataTables::of($productStores)
             ->addColumn('action', function (ProductBusinessLocation $productBusinessLocation) {
-                return view('admin.product-store.template.action', ['product' => $productBusinessLocation->product]);
+                return view('admin.product-store.template.action', ['productBusiness' => $productBusinessLocation]);
             })
             ->editColumn('product.price', function (ProductBusinessLocation $productBusinessLocation) {
                 return $productBusinessLocation->product->formatted_price;
@@ -88,11 +93,15 @@ class ProductStoreController extends AppController
     /**
      * Display the specified resource.
      */
-    public function show(int $productId)
+    public function show(int $productBusinessId)
     {
-        $product = $this->productService->findProductById($productId);
+        
+        $productBusiness = $this->productBusinessLocationService->productBusinessLocationQuery()
+            ->find($productBusinessId);
 
-        return view('admin.product-store.show', compact('product'));
+        $product = $productBusiness->product;
+
+        return view('admin.product-store.show', compact('product', 'productBusiness'));
     }
 
     /**

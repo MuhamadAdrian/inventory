@@ -18,9 +18,25 @@ class BusinessLocation extends Model
     /**
      * Get the products associated with the business location.
      */
+    public function productBusinessLocations()
+    {
+        return $this->hasMany(ProductBusinessLocation::class);
+    }
+
+    /**
+     * Get the products associated with the business location.
+     */
     public function products()
     {
         return $this->hasMany(ProductBusinessLocation::class);
+    }
+
+    /**
+     * Get the products associated with the business location.
+     */
+    public function productStocks()
+    {
+        return $this->hasMany(ProductStock::class);
     }
 
     /**

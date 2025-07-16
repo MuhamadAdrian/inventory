@@ -31,7 +31,6 @@ class ProductFactory extends Factory
             'name' => $this->faker->words(rand(2, 4), true) . ' ' . $this->faker->suffix(),
             'description' => $this->faker->paragraph(1),
             'price' => $this->faker->randomFloat(2, 80000, 500000), // Price between 10,000 and 500,000
-            'stock' => $this->faker->numberBetween(0, 100), // Initial stock when product is created
             'item_code' => $itemCode,
             'color' => $this->faker->safeColorName(),
             'series' => $this->faker->word() . ' Series',

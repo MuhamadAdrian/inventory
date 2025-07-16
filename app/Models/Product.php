@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -19,7 +20,6 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'stock',
         'item_code', // Kode Barang (Item Code)
         'color',     // Warna (Color)
         'series',    // Seri (Series)
@@ -67,4 +67,17 @@ class Product extends Model
     {
         return $this->hasOne(ProductImage::class)->where('is_main', true);
     }
+
+    public function productStocks(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ProductStock::class,
+            ProductBusinessLocation::class,
+            'product_id', // Foreign key on ProductBusinessLocation
+            'product_business_location_id', // Foreign key on ProductStock
+            'id', // Local key on Product
+            'id'  // Local key on ProductBusinessLocation
+        );
+    }
+
 }

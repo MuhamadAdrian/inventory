@@ -72,3 +72,11 @@ body {
     --cui-footer-bg: var(--cui-body-bg);
   }
 }
+
+.dt-layout-table{
+  overflow-x: scroll;
+}
+
+table td {
+  white-space: nowrap;
+}

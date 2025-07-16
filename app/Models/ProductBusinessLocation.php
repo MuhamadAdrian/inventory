@@ -15,7 +15,7 @@ class ProductBusinessLocation extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class)->whereNull('deleted_at');
     }
 
     public function businessLocation(): BelongsTo

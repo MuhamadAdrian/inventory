@@ -10,6 +10,7 @@ use App\Models\ProductBrand;
 use App\Models\ProductImage;
 use App\Models\ProductStock;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -115,7 +116,9 @@ class ProductService
     public function deleteProduct(Product $product): ?bool
     {
         return DB::transaction(function () use ($product) {
-            // Images are deleted via model observer in ProductImage model
+            if ($product->productStocks) {
+                throw new Exception("Can't delete active product", 400);
+            }
             return $product->delete();
         });
     }
@@ -287,4 +290,8 @@ class ProductService
         return $product;
     }
 
+    public function getProductByItemCode(string $itemCode)
+    {
+        return Product::where('item_code', $itemCode)->first();
+    }
 }

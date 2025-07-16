@@ -47,7 +47,7 @@
             columns: [
                 { data: 'id', name: 'id' },
                 { data: 'created_at', name: 'created_at' },
-                { data: 'product.name', name: 'product.name' },
+                { data: 'product_business_location.product.name', name: 'productBusinessLocation.product.name' },
                 { data: 'business_location.name', name: 'businessLocation.name' },
                 { data: 'quantity', name: 'quantity' },
                 { data: 'type', name: 'type', orderable: false, searchable: false },

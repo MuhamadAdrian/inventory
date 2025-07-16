@@ -13,7 +13,7 @@ class ProductStock extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'product_id',
+        'product_business_location_id',
         'quantity',
         'causer_type',
         'causer_id',
@@ -24,9 +24,9 @@ class ProductStock extends Model
     /**
      * Get the product.
      */
-    public function product(): BelongsTo
+    public function productBusinessLocation(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ProductBusinessLocation::class);
     }
 
     /**

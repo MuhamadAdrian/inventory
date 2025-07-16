@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\BusinessLocation\BusinessLocationController;
+use App\Http\Controllers\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\Admin\Stock\StockController;
 use App\Http\Controllers\Admin\Product\ProductController;
 use App\Http\Controllers\Admin\Product\ProductStoreController;
+use App\Http\Controllers\Admin\Scan\StockOutController as ScanStockOutController;
 use App\Http\Controllers\Admin\Stock\StockHistoryController;
-use App\Http\Controllers\Admin\Stock\StockInController;
+use App\Http\Controllers\Admin\Scan\StockInController;
 use App\Http\Controllers\Admin\Stock\StockOutController;
 use App\Http\Controllers\Admin\User\PermissionController;
 use App\Http\Controllers\Admin\User\RoleController;
@@ -16,11 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', function () {
-    // dd(auth()->user()->getAllPermissions()->pluck('name')->toArray());
-    return view('index');
-})->name('dashboard')
-->middleware('auth');
+Route::controller(DashboardController::class)->name('dashboard.')->group(function() {
+    Route::get('/', 'index')->name('index');
+});
 
 // User & Role Management Routes
 Route::resources([
@@ -56,6 +56,7 @@ Route::controller(StockController::class)->prefix('stock-out-requests')->name('s
     Route::post('{stock_out_request}/send', 'sendStockOutRequest')->name('send');
     Route::get('{stock_out_request}/scan/{item_id}', 'stockInConfirmationPage')->name('stock_in_confirmation_page');
     Route::post('{stock_out_request_item}/stock-in-store', 'stockInStoreProceed')->name('stock-in-store-proceed');
+    Route::post('{stock_out_request_item}/force-update', 'forceStockOutRequest')->name('force-update');
 });
 Route::resource('stock-out-requests', StockController::class)->except(['edit', 'update', 'destroy']);
 
@@ -72,7 +73,6 @@ Route::controller(StockHistoryController::class)
         Route::get('/data', 'data')->name('data');
     });
 
-
 // Location Management
 Route::controller(BusinessLocationController::class)
     ->prefix('business-locations')
@@ -81,3 +81,21 @@ Route::controller(BusinessLocationController::class)
         Route::get('data', 'data')->name('data');
     });
 Route::resource('business-locations', BusinessLocationController::class)->except(['show']);
+
+Route::controller(ScanStockOutController::class)
+    ->prefix('stock-out-scan')
+    ->name('stock-out-scan.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('{item_code}/confirmation', 'itemCodeConfirmation')->name('confirmation');
+        Route::post('proceed', 'proceedStockOut')->name('proceed');
+    });
+
+Route::controller(StockInController::class)
+    ->prefix('stock-in-scan')
+    ->name('stock-in-scan.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('{item_code}/confirmation', 'itemCodeConfirmation')->name('confirmation');
+        Route::post('proceed', 'proceedStockIn')->name('proceed');
+    });

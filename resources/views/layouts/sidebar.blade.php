@@ -6,7 +6,7 @@
         <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close" onclick="coreui.Sidebar.getInstance(document.querySelector(&quot;#sidebar&quot;)).toggle()"></button>
       </div>
       <ul class="sidebar-nav" style="font-size: 14px" data-coreui="navigation" data-simplebar>
-        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">
+        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.index') }}">
             <svg class="nav-icon">
               {{-- Use Laravel's asset() helper to point to the public path --}}
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-speedometer') }}"></use>
@@ -18,7 +18,7 @@
             <svg class="nav-icon">
               {{-- Use Laravel's asset() helper to point to the public path --}}
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-location-pin') }}"></use>
-            </svg> Tempat Usaha</a>
+            </svg> Lokasi Barang</a>
         </li>
         @endcan
         <li class="nav-title">User Management</li>
@@ -37,21 +37,14 @@
         <li class="nav-item"><a class="nav-link" href="{{ route('products.index') }}">
           <svg class="nav-icon">
             <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
-          </svg>Produk</a>
+          </svg>Master Produk</a>
         </li>
         @endcan
-        @can('view store product')
+        @can('view product location')
         <li class="nav-item"><a class="nav-link" href="{{ route('products.store.index') }}">
           <svg class="nav-icon">
             <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
-          </svg>Produk Toko</a>
-        </li>
-        @endcan
-        @can('view store product')
-        <li class="nav-item"><a class="nav-link" href="{{ route('products.index') }}">
-          <svg class="nav-icon">
-            <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
-          </svg>Produk Online</a>
+          </svg>Stok Produk</a>
         </li>
         @endcan
         <li class="nav-title">Stock Management</li>
@@ -68,13 +61,13 @@
             </svg>Histori Stok Produk</a></li>
         @endcan
         @can('scan barcode in')
-        <li class="nav-item"><a class="nav-link text-truncate" href="#">
+        <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('stock-in-scan.index') }}">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
             </svg>Scan Stok Masuk</a></li>
         @endcan
         @can('scan barcode out')
-        <li class="nav-item"><a class="nav-link text-truncate" href="#">
+        <li class="nav-item"><a class="nav-link text-truncate" href="{{ route('stock-out-scan.index') }}">
             <svg class="nav-icon">
               <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-tags') }}"></use>
             </svg>Scan Stok Keluar</a></li>

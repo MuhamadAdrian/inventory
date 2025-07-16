@@ -86,6 +86,16 @@
                         </form>
                     @endrole
                 @endif
+                @if ($stockOutRequest->status === 'shipping')
+                    @role('staff')
+                        <form action="{{ route('stock-out-requests.force-update', $stockOutRequest->id) }}" method="POST" class="mt-3" onsubmit="return confirm('Apakah Anda yakin ingin melakukan force update? Tindakan ini akan langsung memperbarui jumlah stok.');">
+                            @csrf
+                            <button type="submit" class="btn btn-danger rounded-md shadow-sm text-white">
+                                <i class="bi bi-truck"></i> Force Update
+                            </button>
+                        </form>
+                    @endrole
+                @endif
             </div>
         </div>
     </div>

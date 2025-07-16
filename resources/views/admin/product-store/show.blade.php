@@ -95,7 +95,39 @@
                         </div>
                     @endif
                 </div>
+            @role('staff')
+            @if($productBusiness->businessLocation->type === 'warehouse')
+            <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-warning rounded-md shadow-sm">Update Stock</button>
+            @endif
+            @endrole
         </div>
     </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" action="{{ route('products.update_stock') }}" method="post">
+        @csrf
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Create New Stock</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="col-md-12 mb-3">
+            <input type="hidden" value="{{ $productBusiness->id }}" name="product_business_location_id" />
+            <label for="stock" class="form-label">Stock</label>
+            <input type="number" class="form-control rounded-md @error('stock') is-invalid @enderror" id="stock" name="stock" required>
+            @error('stock')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+    </form>
+  </div>
 </div>
 @endsection

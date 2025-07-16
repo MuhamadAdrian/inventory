@@ -36,7 +36,7 @@ class StockHistoryController extends AppController
     public function data()
     {
         $productStockHistories = $this->productStockHistoryService->productStockHistoryQuery()
-            ->with(['product', 'businessLocation', 'causer']);
+            ->with(['productBusinessLocation.product', 'businessLocation', 'causer']);
         
         return DataTables::of($productStockHistories)
             ->addColumn('action', function (ProductStock $productStockHistory) {

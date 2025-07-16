@@ -52,4 +52,17 @@ class BusinessLocationService {
     $businessLocation = $this->businessLocationModel->findOrFail($id);
     return $businessLocation->delete();
   }
+
+  public function getEligibleReceiverByItemCode(string $itemCode)
+  {
+    return $this->businessLocationQuery()->whereHas('productStocks', function ($query) use ($itemCode) {
+      $query->whereHas('productBusinessLocation', function($productBusiness) use ($itemCode) {
+          $productBusiness->whereHas('product', function($product) use ($itemCode) {
+            $product->where('item_code', $itemCode);
+        })->where('stock', '>', 0);
+      });
+    })
+    ->whereNot('id', auth()->user()->businessLocation->id)
+    ->get();
+  }
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\UserRequest;
 use App\Models\BusinessLocation;
 use App\Models\User;
 use App\Models\Warehouse;
+use App\Services\BusinessLocation\BusinessLocationService;
 use App\Services\User\RoleService;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
@@ -17,8 +18,9 @@ class UserController extends AppController
 {
     private UserService $userService;
     private RoleService $roleService;
+    private $businessLocationService;
 
-    public function __construct(Request $request, UserService $userService, RoleService $roleService)
+    public function __construct(Request $request, UserService $userService, BusinessLocationService $businessLocationService, RoleService $roleService)
     {
         parent::__construct($request);
 
@@ -29,6 +31,7 @@ class UserController extends AppController
 
         $this->userService = $userService;
         $this->roleService = $roleService;
+        $this->businessLocationService = $businessLocationService;
 
         config([
             'site.header' => 'Daftar Akun',
@@ -42,8 +45,19 @@ class UserController extends AppController
      */
     public function index(UsersDataTable $dataTable)
     {
+        $ownedRole = auth()->user()->getRoleNames()[0];
         $currentRoles = auth()->user()->roles->pluck('name')->toArray();
-        $businessLocations = BusinessLocation::all();
+        
+        $businessLocationQuery = $this->businessLocationService->businessLocationQuery();
+
+        if ( $ownedRole === 'gudang') {
+            $businessLocationQuery->whereNot('type', 'online');
+        } else if ($ownedRole === 'kasir') {
+            $businessLocationQuery->where('type', 'store');
+        }
+
+        $businessLocations = $businessLocationQuery->get();
+
         return $dataTable
             ->setCurrentRoles($currentRoles)
             ->render('users.index', compact('businessLocations'));
@@ -62,8 +76,15 @@ class UserController extends AppController
                 ['name' => 'Buat', 'url' => route('users.create')],
             ]
         ]);
+        $ownedRole = auth()->user()->getRoleNames()[0];
 
-        $locations = BusinessLocation::all();
+        $businessLocationQuery = $this->businessLocationService->businessLocationQuery();
+        if ( $ownedRole === 'gudang') {
+            $businessLocationQuery->whereNot('type', 'online');
+        } else if ($ownedRole === 'kasir') {
+            $businessLocationQuery->where('type', 'store');
+        }
+        $locations = $businessLocationQuery->get();
 
         $currentRole = auth()->user()->roles->pluck('name')->toArray();
         // Get all roles to allow assignment

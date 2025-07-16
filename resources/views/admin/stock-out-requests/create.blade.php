@@ -151,11 +151,16 @@
         var productsSelectionTable = $('#products-selection-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{!! route('stock-out-requests.products_for_selection_data') !!}',
+            ajax: {
+                url: '{!! route('stock-out-requests.products_for_selection_data') !!}',
+                data: function (d) {
+                    d.sender_id_filter = $('#sender_id').val();
+                }
+            },
             columns: [
                 { data: 'id', name: 'id' },
-                { data: 'item_code', name: 'item_code' },
-                { data: 'name', name: 'name' },
+                { data: 'product.item_code', name: 'product.item_code' },
+                { data: 'product.name', name: 'product.name' },
                 { data: 'formatted_price', name: 'formatted_price', orderable: false, searchable: false },
                 { data: 'quantity_input', name: 'quantity_input', orderable: false, searchable: false }
             ],
@@ -171,6 +176,11 @@
                     }
                 });
             }
+        });
+
+        
+        $('#sender_id').on('change', function() {
+            productsSelectionTable.draw();
         });
 
         // Event listener untuk tombol plus (+)

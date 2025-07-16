@@ -116,7 +116,7 @@
         <li class="breadcrumb-item active">
           <i class="bi bi-house-door-fill me-2"></i>
           @if(config('site.breadcrumbs') && count(config('site.breadcrumbs')) > 0)
-          <a href="{{ route('dashboard') }}">Home</a>
+          <a href="{{ route('dashboard.index') }}">Home</a>
           @else
           <span>Home</span>
           @endif

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateStockRequest extends FormRequest
+class ScanStockOutRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,10 @@ class UpdateStockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_business_location_id' => 'required|integer|exists:product_business_locations,id',
-            'stock'      => 'required|integer',
-            'business_location_id' => 'nullable|integer|exists:business_locations,id'
+            'item_code' => 'required',
+            'quantity' => 'min:1',
+            'product_id' => 'required|exists:products,id',
+            'business_location_id' => 'required|exists:business_locations,id'
         ];
     }
 }

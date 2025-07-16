@@ -26,7 +26,7 @@ class InitialSeeder extends Seeder
             'view dashboard', 'create role', 'edit role', 'delete role', 'view role', 'assign permissions to roles',
             'create business location', 'edit business location', 'delete business location', 'view business location',
             'view product', 'create product', 'edit product', 'delete product',
-            'view store product', 'view stock request', 'view dashboard',
+            'view product location', 'view stock request', 'view dashboard',
             'import product', 'export product', 'update stock product', 'print barcode',
             'approval stock request', 'export stock request', 'print stock request',
             'scan barcode in', 'scan barcode out', 'create stock request', 'view product stock history', 'export product stock history', 'direct stock out'
@@ -43,7 +43,7 @@ class InitialSeeder extends Seeder
             'assign permissions to roles',
             'create account', 'view account', 'edit account', 'delete account',
             'create business location', 'edit business location', 'delete business location', 'view business location',
-            'view product', 'view store product', 'view stock request',
+            'view product', 'view product location', 'view stock request',
             'view product stock history', 'export product stock history'
         ]);
 
@@ -52,6 +52,7 @@ class InitialSeeder extends Seeder
             'view dashboard', 'import product', 'export product',
             'create product', 'edit product', 'delete product', 'view product',
             'create account', 'edit account', 'delete account', 'view account',
+            'view product location',
             'update stock product',
             'print barcode',
             'view stock request',
@@ -60,20 +61,23 @@ class InitialSeeder extends Seeder
             'approval stock request',
             'export stock request',
             'view product stock history',
-            'export product stock history'
+            'export product stock history',
+            'scan barcode out', 'scan barcode in'
         ]);
 
         $gudangRole = Role::findOrCreate('gudang');
         $gudangRole->givePermissionTo([
             'view product', 'export product', 'update stock product', 'print stock request',
-            'create stock request', 'view stock request', 'export stock request', 'view store product',
+            'create stock request', 'view stock request', 'export stock request', 'view product location',
             'create account', 'edit account', 'delete account', 'view account',
+            'view product stock history', 'scan barcode in', 'scan barcode out'
         ]);
 
         $kasirRole = Role::findOrCreate('kasir');
         $kasirRole->givePermissionTo([
-            'view store product',
+            'view product location',
             'create account', 'edit account', 'delete account', 'view account',
+            'view product stock history',
             'scan barcode in', 'scan barcode out'
         ]);
 

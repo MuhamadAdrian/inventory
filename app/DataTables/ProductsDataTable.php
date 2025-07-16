@@ -34,9 +34,6 @@ class ProductsDataTable extends DataTable
             ->addColumn('barcode', function (Product $product) {
                 return $product->item_code ? $this->productService->generateBarcode($product->item_code) : '-';
             })
-            ->editColumn('stock', function (Product $product) {
-                return $product->stock ?? '0';
-            })
             ->addColumn('formatted_price', function (Product $product) {
                 return $product->formatted_price; // Assuming you have a formatted_price accessor
             })
@@ -111,8 +108,6 @@ class ProductsDataTable extends DataTable
                 ->searchable(false)
                 ->orderable(false)
                 ->addClass('text-end'),
-            Column::make('stock')
-                ->title('Stock'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)

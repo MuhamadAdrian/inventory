@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AppController;
 use App\Http\Requests\StockInStoreRequest;
 use App\Http\Requests\StockOutRequestRequest;
 use App\Models\Product;
+use App\Models\ProductBusinessLocation;
 use App\Models\StockOutRequest;
 use App\Models\StockOutRequestItem;
 use App\Services\BusinessLocation\BusinessLocationService;
@@ -13,6 +14,8 @@ use App\Services\Product\ProductService;
 use App\Services\Stock\StockOutRequestService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Milon\Barcode\DNS2D;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -190,23 +193,32 @@ class StockController extends AppController
     /**
      * Return product data for DataTables (product selection in the form).
      */
-    public function getProductsForSelectionData()
+    public function getProductsForSelectionData(Request $request)
     {
-        $products = $this->stockOutRequestService->getProductsForSelectionDataTables();
+        $productBusiness = $this->stockOutRequestService->getProductsForSelectionDataTables();
 
-        return DataTables::of($products)
-            ->addColumn('quantity_input', function (Product $product) {
+        if ($request->filled('sender_id_filter') && $request->input('sender_id_filter') !== '') {
+            $locationFilter = $request->input('sender_id_filter');
+
+            $productBusiness->where('business_location_id', $locationFilter);
+        }
+
+        
+        $productBusiness = $productBusiness->get();
+
+        return DataTables::of($productBusiness)
+            ->addColumn('quantity_input', function (ProductBusinessLocation $productBusiness) {
                 return "
                     <div class='input-group input-group-sm' style='width: 120px;'>
-                        <button type='button' class='btn btn-outline-secondary btn-minus' data-product-id='{$product->id}'>-</button>
+                        <button type='button' class='btn btn-outline-secondary btn-minus' data-product-id='{$productBusiness->product->id}'>-</button>
                         <input type='number' class='form-control form-control-sm text-center product-quantity'
-                               data-product-id='{$product->id}' value='0' min='0' step='1'>
-                        <button type='button' class='btn btn-outline-secondary btn-plus' data-product-id='{$product->id}'>+</button>
+                               data-product-id='{$productBusiness->product->id}' value='0' min='0' step='1'>
+                        <button type='button' class='btn btn-outline-secondary btn-plus' data-product-id='{$productBusiness->product->id}'>+</button>
                     </div>
                 ";
             })
-            ->addColumn('formatted_price', function(Product $product) {
-                return $product->formatted_price;
+            ->addColumn('formatted_price', function(ProductBusinessLocation $productBusiness) {
+                return $productBusiness->product->formatted_price;
             })
             ->rawColumns(['quantity_input'])
             ->make(true);
@@ -302,11 +314,63 @@ class StockController extends AppController
                 return redirect()->back()->with('error', 'Jumlah stok yang dimasukkan harus lebih dari nol.');
             }
 
-            $this->stockOutRequestService->inputProductToStore($stockOutRequestItemId, $request->input('quantity'));
+            $productBusinessLocation = $this->stockOutRequestService->inputProductToStore($stockOutRequestItemId, $request->input('quantity'));
+
+            if ($productBusinessLocation < 10){
+                // TODO: Send email
+            }
 
             return redirect()->route('products.store.index')->with('success', 'Produk berhasil diperbarui');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Gagal input produk : ' . $e->getMessage());
+        }
+    }
+
+    public function forceStockOutRequest(int $stockOutRequestId)
+    {
+        DB::beginTransaction();
+
+        $errors = [];
+
+        try {
+            $stockOutRequest = $this->stockOutRequestService->stockOutRequestQuery()
+                ->findOrFail($stockOutRequestId);
+
+            foreach ($stockOutRequest->items as $item) {
+                try {
+                    if ($item->quantity <= 0) {
+                        throw new Exception("Quantity must be greater than 0 for item ID {$item->id}");
+                    }
+
+                    $productBusinessLocation = $this->stockOutRequestService->inputProductToStore($item->id, $item->quantity);
+
+                    if (!$productBusinessLocation) {
+                        throw new Exception("Failed to process item ID {$item->id}: ProductBusinessLocation not found.");
+                    }
+
+                    if ($productBusinessLocation->stock < 10) {
+                        // TODO: Send low stock email
+                    }
+
+                } catch (Exception $itemException) {
+                    $errors[] = $itemException->getMessage();
+                    Log::error($itemException->getMessage());
+                    Log::info($item);
+                    continue;
+                }
+            }
+
+            DB::commit();
+
+            if (!empty($errors)) {
+                return redirect()->back()->with('warning', 'Processed with warnings: ' . implode(', ', $errors));
+            }
+
+            return redirect()->back()->with('success', 'Stock out processed successfully.');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal force update permintaan stok produk: ' . $e->getMessage());
         }
     }
 }
