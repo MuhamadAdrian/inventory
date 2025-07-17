@@ -7,15 +7,14 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class Notification extends Model
 {
     protected $fillable = [
-        'type',
-        'message',
-        'notifiable_type',
-        'notifiable_id',
+        'notification_id',
+        'user_id',
+        'read_at',
     ];
 
-    public function notifiable(): MorphTo
+    public function notificaion()
     {
-        return $this->morphTo();
+        return $this->belongsTo(Notification::class);
     }
 
     public function readers()

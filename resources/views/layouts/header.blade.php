@@ -6,10 +6,11 @@
       </svg>
     </button>
     <ul class="header-nav ms-auto">
-      <li class="nav-item"><a class="nav-link" href="#">
+      {{-- <li class="nav-item"><a class="nav-link" href="#">
           <svg class="icon icon-lg">
             <use xlink:href="{{ asset('assets/coreui/icons/free.svg#cil-bell') }}"></use>
-          </svg></a></li>
+          </svg></a></li> --}}
+          @include('layouts.notification')
     </ul>
     <ul class="header-nav">
       <li class="nav-item py-1">
@@ -76,23 +77,8 @@
             </svg> Comments<span class="badge badge-sm bg-warning ms-2">42</span></a>
           <div class="dropdown-header bg-body-tertiary text-body-secondary fw-semibold my-2">
             <div class="fw-semibold">Settings</div>
-          </div><a class="dropdown-item" href="#">
-            <svg class="icon me-2">
-              <use xlink:href="assets/coreui/icons/free.svg#cil-user"></use>
-            </svg> Profile</a><a class="dropdown-item" href="#">
-            <svg class="icon me-2">
-              <use xlink:href="assets/coreui/icons/free.svg#cil-settings"></use>
-            </svg> Settings</a><a class="dropdown-item" href="#">
-            <svg class="icon me-2">
-              <use xlink:href="assets/coreui/icons/free.svg#cil-credit-card"></use>
-            </svg> Payments<span class="badge badge-sm bg-secondary ms-2">42</span></a><a class="dropdown-item" href="#">
-            <svg class="icon me-2">
-              <use xlink:href="assets/coreui/icons/free.svg#cil-file"></use>
-            </svg> Projects<span class="badge badge-sm bg-primary ms-2">42</span></a>
-          <div class="dropdown-divider"></div><a class="dropdown-item" href="#">
-            <svg class="icon me-2">
-              <use xlink:href="assets/coreui/icons/free.svg#cil-lock-locked"></use>
-            </svg> Lock Account</a>
+          </div>
+          <div class="dropdown-divider"></div>
           <a class="dropdown-item"
             href="{{ route('logout') }}"
             onclick="event.preventDefault();

@@ -41,12 +41,15 @@ class StockStreamService
 
     protected function createNotification(ProductBusinessLocation $pbl, int $stock): void
     {
-        Notification::create([
-            'notifiable_type' => ProductBusinessLocation::class,
-            'notifiable_id' => $pbl->id,
-            'type' => 'low_stock',
-            'message' => "Stock for {$pbl->product->name} at {$pbl->businessLocation->name} is low ({$stock} left).",
-        ]);
+      $notification = Notification::create([
+          'notifiable_type' => ProductBusinessLocation::class,
+          'notifiable_id' => $pbl->id,
+          'type' => 'low_stock',
+          'message' => "Stock for {$pbl->product->name} at {$pbl->businessLocation->name} is low ({$stock} left).",
+      ]);
+
+      $users = User::all();
+      $notification->readers()->attach($users->pluck('id'));
     }
 
     protected function blastEmail(ProductBusinessLocation $pbl, int $stock): void

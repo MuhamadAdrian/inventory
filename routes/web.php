@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\User\PermissionController;
 use App\Http\Controllers\Admin\User\RoleController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\Warehouse\WarehouseProductController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -99,3 +100,7 @@ Route::controller(StockInController::class)
         Route::get('{item_code}/confirmation', 'itemCodeConfirmation')->name('confirmation');
         Route::post('proceed', 'proceedStockIn')->name('proceed');
     });
+
+Route::get('/notifications', [NotificationController::class, 'index']);
+
+Route::post('/notifications/{id}/read', [NotificationController::class, 'read']);
