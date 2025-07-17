@@ -69,14 +69,16 @@
 
             <div class="d-flex gap-1">
                 @can('print stock request')
+                @if($stockOutRequest->status !== 'pending')
                 <form action="{{ route('stock-out-requests.print', $stockOutRequest->id) }}" method="POST" class="mt-3">
                     @csrf
                     <button type="submit" class="btn btn-warning rounded-md shadow-sm text-black">
                         <i class="bi bi-printer-fill me-2"></i> Cetak Dokumen
                     </button>
                 </form>
+                @endif
                 @endcan
-                @if ($stockOutRequest->items()->first()?->status === 'requested' && $stockOutRequest->document_printed_at)
+                @if ($stockOutRequest->items()->first()?->status === 'requested' && $stockOutRequest->document_printed_at && $stockOutRequest->status !== 'pending')
                     @role('gudang')
                         <form action="{{ route('stock-out-requests.send', $stockOutRequest->id) }}" method="POST" class="mt-3">
                             @csrf
@@ -87,14 +89,14 @@
                     @endrole
                 @endif
                 @if ($stockOutRequest->status === 'shipping')
-                    @role('staff')
+                    @can('direct stock out')
                         <form action="{{ route('stock-out-requests.force-update', $stockOutRequest->id) }}" method="POST" class="mt-3" onsubmit="return confirm('Apakah Anda yakin ingin melakukan force update? Tindakan ini akan langsung memperbarui jumlah stok.');">
                             @csrf
                             <button type="submit" class="btn btn-danger rounded-md shadow-sm text-white">
                                 <i class="bi bi-truck"></i> Force Update
                             </button>
                         </form>
-                    @endrole
+                    @endcan
                 @endif
             </div>
         </div>

@@ -15,7 +15,9 @@ class DashboardController extends AppController
 {
     protected $dashboardService;
 
-    public function __construct(DashboardService $dashboardService) {
+    public function __construct(Request $request, DashboardService $dashboardService) {
+        parent::__construct($request);
+
         $this->dashboardService = $dashboardService;
     }
 
@@ -25,7 +27,8 @@ class DashboardController extends AppController
         $productStats = $this->dashboardService->getProductGrowthStats();
         $historiPerpindahanBarangHariIni = ProductStock::whereDate('created_at', today())->count();
         $stokProdukTerkecilDariSeluruhLokasiYangAda = ProductBusinessLocation::orderBy('stock', 'asc')->first();
+        $stockMovement = $this->dashboardService->getTopActiveProductsForChart();
 
-        return view('index', compact('jumlahLokasi', 'productStats', 'historiPerpindahanBarangHariIni', 'stokProdukTerkecilDariSeluruhLokasiYangAda'));
+        return view('index', compact('jumlahLokasi', 'productStats', 'historiPerpindahanBarangHariIni', 'stokProdukTerkecilDariSeluruhLokasiYangAda', 'stockMovement'));
     }
 }

@@ -6,6 +6,12 @@ import 'laravel-datatables-vite';
 import * as coreui from '@coreui/coreui'; // This is already handled by bootstrap.js, but good for clarity
 window.coreui = coreui; // Ensure CoreUI is globally accessible
 
+import { renderProductActivityChart } from './charts/productActivityChart';
+
+window.renderProductActivityChart = renderProductActivityChart;
+
+
+
 
 // Import CoreUI Icons (if you use them as CIcon components or directly)
 // You might not need to import all icons directly if you only use them via SVG sprites.

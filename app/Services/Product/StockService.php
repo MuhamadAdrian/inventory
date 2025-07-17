@@ -73,37 +73,29 @@ class StockService
 
   public function createStockMovementHistory (int $productBusinessLocationId, int $businessLocationId, int $quantity, int $causerId)
   {
-      $previousProductStockSender = $this->productStockQuery()
-        ->where('product_business_location_id', $productBusinessLocationId)
-        ->where('business_location_id', $businessLocationId)
-        ->latest('created_at')
-        ->first();
+    $previousProductStockSender = $this->productStockQuery()
+      ->where('product_business_location_id', $productBusinessLocationId)
+      ->where('business_location_id', $businessLocationId)
+      ->latest('created_at')
+      ->first();
 
-      $previousStockTotalSender = 0;
+      
+      $previousStock = 0;
       if ($previousProductStockSender) {
-          $previousStockTotalSender = $previousProductStockSender->stock;
+        $previousStock = $previousProductStockSender->stock;
       }
+      
+      $newStock = $previousStock + $quantity;
 
-      $newStockTotalSender = $previousStockTotalSender + $quantity;
-
-      $productStock = $this->productStockQuery()
-          ->create([
-              'product_business_location_id' => $productBusinessLocationId,
-              'business_location_id' => $businessLocationId,
-              'quantity' => $quantity,
-              'causer_type' => get_class(Auth::user()),
-              'causer_id' => $causerId,
-              'stock' => $newStockTotalSender
-          ]);
-
-      if ($productStock->stock < 10) {
-        // TODO: Send email notification
-      }
+      $productStock = ProductStock::create([
+          'product_business_location_id' => $productBusinessLocationId,
+          'business_location_id' => $businessLocationId,
+          'quantity' => $quantity,
+          'causer_type' => get_class(Auth::user()),
+          'causer_id' => $causerId,
+          'stock' => $newStock
+        ]);
  
-
       return $productStock;
   }
-
-  public function updateActualStock(int $producId, int $businessLocationId)
-  {}
 }

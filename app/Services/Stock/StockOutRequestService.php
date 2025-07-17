@@ -189,7 +189,7 @@ class StockOutRequestService
     public function inputProductToStore(int $stockOutRequestItemId, int $quantity)
     {
         DB::transaction(function() use ($stockOutRequestItemId, $quantity) {
-            $item = StockOutRequestItem::findOrFail($stockOutRequestItemId);
+            $item = StockOutRequestItem::with(['product', 'stockOutRequest.receiver'])->findOrFail($stockOutRequestItemId);
 
             if ($item->status !== 'transferred') {
                 throw new Exception("Item tidak dalam status yang benar untuk konfirmasi stok masuk.");
@@ -211,80 +211,45 @@ class StockOutRequestService
             }
 
             $stockOutRequest = $item->stockOutRequest;
-
-            // input product to store or update stock
-            $productStore = ProductBusinessLocation::updateOrCreate(
-                [
-                    'product_id' => $item->product->id,
-                    'business_location_id' => auth()->user()->businessLocation->id,
-                ],
-                [
-                    'stock' => DB::raw("stock + {$quantity}")
-                ]
-            );
-
-            Log::info('Produk Store : ' . $productStore);
-
             
             $productBusinessLocation = $this->productBusinessLocationService->getProductLocation($item->product->id, $stockOutRequest->receiver->id);
-            
-            // create stock in history for receiver
-            $previousProductStockReceiver = $this->stockService->productStockQuery()
-            ->where('product_business_location_id', $productBusinessLocation->id)
-            ->where('business_location_id', $stockOutRequest->receiver->id)
-            ->latest('created_at')
-            ->first();
-            
-            $previousStockTotalReceiver = 0;
-            if ($previousProductStockReceiver) {
-                $previousStockTotalReceiver = $previousProductStockReceiver->stock;
-            }
-            
-            $newStockTotalReceiver = $previousStockTotalReceiver + $item->quantity;
-            
-            $this->stockService->productStockQuery()
-                ->create([
-                    'product_business_location_id' => $productBusinessLocation->id,
-                    'business_location_id' => $stockOutRequest->receiver->id,
-                    'quantity' => $item->quantity,
-                    'causer_type' => get_class(Auth::user()),
-                    'causer_id' => Auth::id(),
-                    'stock' => $newStockTotalReceiver
-                ]);
-                
-            $productBusinessLocation = $this->productBusinessLocationService->getProductLocation($item->product->id, $stockOutRequest->sender->id);
 
-            dd($productBusinessLocation);
-                
-                // create stock out history for sender
-            $previousProductStockSender = $this->stockService->productStockQuery()
-                ->where('product_business_location_id', $productBusinessLocation->id)
-                ->where('business_location_id', $stockOutRequest->sender->id)
-                ->latest('created_at')
-                ->first();
-                
-                
-                
-            $previousStockTotalSender = 0;
-            if ($previousProductStockSender) {
-                $previousStockTotalSender = $previousProductStockSender->stock;
+            if (!$productBusinessLocation) {
+                // input product to store or update stock
+                $productBusinessLocation = $this->productBusinessLocationService->productBusinessLocationQuery()
+                    ->create([
+                        'product_id' => $item->product->id,
+                        'business_location_id' => $stockOutRequest->receiver->id,
+                        'stock' => $quantity
+                    ]);
             }
-            
-            $newStockTotalSender = $previousStockTotalSender - $item->quantity;
-            
-            $productStockSender = $this->stockService->productStockQuery()
-            ->create([
-                'product_business_location_id' => $productBusinessLocation->id,
-                'business_location_id' => $stockOutRequest->sender->id,
-                'quantity' => $item->quantity * -1,
-                'causer_type' => get_class(Auth::user()),
-                'causer_id' => $stockOutRequest->createdBy->id,
-                'stock' => $newStockTotalSender
+
+            // create stock in history for receiver
+            $productStock = $this->stockService->createStockMovementHistory(
+                $productBusinessLocation->id,
+                $stockOutRequest->receiver->id,
+                $item->quantity,
+                Auth::id()
+            );
+
+            // update the quantity
+            $productStock->productBusinessLocation->update([
+                'stock' => $productStock->stock
             ]);
+
+            $productBusinessLocation = $this->productBusinessLocationService->getProductLocation($item->product->id, $stockOutRequest->sender->id);
+            // create stock out history for sender
+            $productStockSender = $this->stockService->createStockMovementHistory(
+                $productBusinessLocation->id,
+                $stockOutRequest->sender->id,
+                $item->quantity * -1,
+                Auth::id()
+            );
             
             $productBusinessLocation->update([
                 'stock' => $productStockSender->stock
             ]);
+
 
             return $productBusinessLocation;
         });

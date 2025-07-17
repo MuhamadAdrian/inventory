@@ -35,6 +35,7 @@ class StockController extends AppController
 
         $this->middleware('can:view stock request')->only(['index', 'show', 'data']);
         $this->middleware('can:approval stock request')->only(['destory', 'processTransfer']);
+        $this->middleware('can:direct stock out')->only(['forceStockOutRequest']);
 
         $this->productService = $productService;
         $this->stockOutRequestService = $stockOutRequestService;
@@ -353,9 +354,9 @@ class StockController extends AppController
                     }
 
                 } catch (Exception $itemException) {
-                    $errors[] = $itemException->getMessage();
-                    Log::error($itemException->getMessage());
-                    Log::info($item);
+                    // $errors[] = $itemException->getMessage();
+                    // Log::error($itemException->getMessage());
+                    Log::info($itemException);
                     continue;
                 }
             }

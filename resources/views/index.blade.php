@@ -81,8 +81,8 @@
             <div class="card-body">
               <div class="d-flex justify-content-between">
                 <div>
-                  <h4 class="card-title mb-0">Traffic</h4>
-                  <div class="small text-body-secondary">January - July 2023</div>
+                  <h4 class="card-title mb-0">Aktivitas Keluar Masuk Barang ( Top 10 ) {{ $stockMovement['now'] }}</h4>
+                  <div class="small text-body-secondary">{{ $stockMovement['monthRange'] }}</div>
                 </div>
                 <div class="btn-toolbar d-none d-md-block" role="toolbar" aria-label="Toolbar with buttons">
                   <div class="btn-group btn-group-toggle mx-3" data-coreui-toggle="buttons">
@@ -100,8 +100,8 @@
                   </button>
                 </div>
               </div>
+              <canvas id="productActivityChart" height="300"></canvas>
               <div class="c-chart-wrapper" style="height:300px;margin-top:40px;">
-                <canvas class="chart" id="main-chart" height="300"></canvas>
               </div>
             </div>
             <div class="card-footer">
@@ -717,47 +717,16 @@
         </div>
 @endsection
 
+{{-- @php
+  dd($stockMovement);
+@endphp --}}
+
 @push('scripts')
 <script type="module">
-    // This script will be pushed to the @stack('scripts') in your layout
-    // and will run after app.js.
-    import { Chart } from 'chart.js';
+    const labels = @json($stockMovement['labels']);
+    const data = @json($stockMovement['data']);
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const salesCtx = document.getElementById('salesChart');
-        if (salesCtx) {
-            new Chart(salesCtx, {
-                type: 'line',
-                data: {
-                    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-                    datasets: [{
-                        label: 'Sales',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        data: [65, 59, 80, 81, 56, 55],
-                        fill: true,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-    });
+    renderProductActivityChart(labels, data);
 </script>
 @endpush
+

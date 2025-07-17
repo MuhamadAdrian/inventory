@@ -119,6 +119,7 @@
                                 <th scope="col">ID</th>
                                 <th scope="col">Kode Item</th>
                                 <th scope="col">Nama Produk</th>
+                                <th scope="col">Stok Terkini</th>
                                 <th scope="col">Harga</th>
                                 <th scope="col" class="text-center">Kuantitas</th>
                             </tr>
@@ -161,6 +162,7 @@
                 { data: 'id', name: 'id' },
                 { data: 'product.item_code', name: 'product.item_code' },
                 { data: 'product.name', name: 'product.name' },
+                { data: 'stock', name: 'stock' },
                 { data: 'formatted_price', name: 'formatted_price', orderable: false, searchable: false },
                 { data: 'quantity_input', name: 'quantity_input', orderable: false, searchable: false }
             ],

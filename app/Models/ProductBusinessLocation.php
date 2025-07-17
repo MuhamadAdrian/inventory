@@ -22,4 +22,15 @@ class ProductBusinessLocation extends Model
     {
         return $this->belongsTo(BusinessLocation::class);
     }
+
+    public function productStocks()
+    {
+        return $this->hasMany(ProductStock::class);
+    }
+
+    public function getFinalStockAttribute(): int
+    {
+        return $this->productStocks()->sum('quantity');
+    }
+
 }
