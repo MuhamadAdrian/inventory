@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'CoreUI Admin')</title>
+    <title>@yield('title', config('app.name'))</title>
+
 
     @vite('resources/scss/style.scss')
 </head>
